@@ -1,0 +1,3 @@
+[submodule "LightGL"]
+	path = LightGL
+	url = git://github.com/fabmax/LightGL.git
