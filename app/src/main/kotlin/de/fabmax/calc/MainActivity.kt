@@ -74,12 +74,30 @@ class MainActivity : LightGlActivity() {
         glContext.state.setBackgroundColor(1.0f, 1.0f, 1.0f)
         contentGrp.resetTransform()
         contentGrp.scale(-1f, -1f, -1f)
-        mEngine.scene = contentGrp
+        glContext.engine.scene = contentGrp
+
+
+        // add a directional light
+        val light = Light.createDirectionalLight(-.4f, .5f, -1f, 0.7f, 0.7f, 0.7f)
+        glContext.engine.addLight(light)
+
+        // enable shadow rendering
+        val sceneBounds = BoundingBox(-1000f, 1000f, -1000f, 1000f, -1000f, 1000f)
+        val shadow = ShadowRenderPass()
+        shadow.setSceneBounds(sceneBounds)
+        shadow.shadowMapSize = 2048
+        glContext.engine.preRenderPass = shadow
+
 
         mContent = Content(glContext, phoneLayout(applicationContext));
         contentGrp.addChild(mContent)
 
         setContentSize(screenWidth, screenHeight)
+    }
+
+    override fun onRenderFrame(glContext: LightGlContext?) {
+        super.onRenderFrame(glContext)
+        mContent?.layout?.mixConfigs(mRotationSens.normalizedHV)
     }
 
     private fun setContentSize(width: Int, height: Int) {
@@ -105,8 +123,6 @@ class MainActivity : LightGlActivity() {
         var layout: Layout = layout
 
         override fun render(context: LightGlContext) {
-            layout.mixConfigs(mRotationSens.normalizedHV)
-
             if (touchAction != -1) {
                 context.engine.camera.getPickRay(context.state.viewport, touchX, touchY, pickRay)
                 GlMath.multiplyMV(contentGrp.inverseTransformation, 0, pickRay.origin, 0);

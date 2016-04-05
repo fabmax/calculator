@@ -96,6 +96,15 @@ abstract class UiElementBuilder<T: UiElement<*>>(context: Context) {
         })
     }
 
+    fun bounds(x: SizeSpec, y: SizeSpec, z: SizeSpec, width: SizeSpec, height: SizeSpec, depth: SizeSpec) {
+        element.layoutConfig.setLayoutFun(orientation, { b, c ->
+            val w = b.sizeX
+            val h = b.sizeY
+            this.setBounds(x.toPx(w, h, c), y.toPx(w, h, c), z.toPx(w, h, c),
+                    width.toPx(w, h, c), height.toPx(w, h, c), depth.toPx(w, h, c))
+        })
+    }
+
     fun bounds(layoutFun: LayoutProperties.(parentBounds: BoundingBox, ctx: Context) -> Unit) {
         element.layoutConfig.setLayoutFun(orientation, layoutFun)
     }

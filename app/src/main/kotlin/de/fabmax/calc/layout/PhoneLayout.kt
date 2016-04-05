@@ -21,7 +21,7 @@ fun phoneLayout(appContext: Context): Layout {
 
     val chars = CharMap(" 0123456789.=+-/sincotaner()^vlgCLRDEL" + CalcPanel.TIMES + CalcPanel.PI + CalcPanel.SQRT)
 
-    val fontCfg = GlFont.FontConfig(appContext.assets, "Roboto-Light.ttf", chars, dp(24f, appContext))
+    val fontCfg = GlFont.FontConfig(appContext.assets, "Roboto-Light.ttf", chars, dp(28f, appContext))
     val fontCfgSmall = GlFont.FontConfig(appContext.assets, "Roboto-Light.ttf", chars, dp(18f, appContext))
     val fontCfgLarge = GlFont.FontConfig(appContext.assets, "Roboto-Thin.ttf", chars, dp(40f, appContext))
 
@@ -33,14 +33,13 @@ fun phoneLayout(appContext: Context): Layout {
             init {
                 fontConfig = fontCfgLarge
                 fontColor = darkGray
+                color = lightGray
             }
             port {
-                color = lightGray
-                bounds(dp(0f), dp(0f), parentW(), rh(0.25f))
+                bounds(dp(0f), dp(0f), dp(16f), rw(1.02f), rh(0.26f), dp(0f))
             }
             land {
-                color = lightGray
-                bounds(dp(0f), dp(0f), parentW(), rh(0.30f))
+                bounds(dp(0f), dp(0f), dp(16f), rw(1.02f), rh(0.31f), dp(0f))
             }
         }
 
@@ -54,7 +53,7 @@ fun phoneLayout(appContext: Context): Layout {
                     text = texts[i]
                     onClickListener = { -> calcPanel.buttonPressed(text) }
                 }
-                port { bounds(rw(1/4f * (i%3)), rh(1/4f + (i/3) * 0.15f), rw(1/4f), rh(0.15f)) }
+                port { bounds(rw(1 / 4f * (i % 3)), rh(1 / 4f + (i / 3) * 0.15f), rw(1 / 4f), rh(0.15f)) }
                 land { bounds(rw(1/8f * (i%3)), rh(0.3f + (i/3) * 0.175f), rw(1/8f), rh(0.175f)) }
             }
         }
@@ -63,17 +62,19 @@ fun phoneLayout(appContext: Context): Layout {
         for (i in 0 .. 3) {
             button {
                 init {
-                    color = petrol
                     fontConfig = fontCfgSmall
                     fontColor = darkGray
                     text = texts[i]
                     onClickListener = { -> calcPanel.buttonPressed(text) }
                 }
                 port {
-                    bounds(rw(0.75f), rh(1/4f + i * 0.15f), rw(1/4F), rh(0.15f))
+                    bounds(rw(0.74f), rh(1/4f + i * 0.15f), dp(8f), rw(.26f), rh(0.15f), dp(0f))
                     color = cyan
                 }
-                land { bounds(rw(0.375f), rh(0.3f + i * 0.175f), rw(1/8f), rh(0.175f)) }
+                land {
+                    bounds(rw(0.375f), rh(0.3f + i * 0.175f), dp(8f), rw(1/8f), rh(0.175f), dp(0f))
+                    color = petrol
+                }
             }
         }
 
@@ -92,12 +93,13 @@ fun phoneLayout(appContext: Context): Layout {
                     layoutConfig.boundsInterpolator = interpolator
                 }
                 port {
-                    bounds(rw(1/4f * i), rh(0.85f), rw(1/4f), rh(0.15f))
+                    bounds(rw(.26f * i - .01f), rh(0.85f), dp(-16f), rw(.26f), rh(0.16f), dp(0f))
                     if (texts[i] == "="){
+                        bounds(rw(.74f), rh(0.85f), dp(8f), rw(.26f), rh(0.15f), dp(0f))
                         color = cyan
                     }
                 }
-                land { bounds(rw(0.5f), rh(0.3f + i * 0.175f), rw(1/8f), rh(0.175f)) }
+                land { bounds(rw(.5f), rh(.3f + i * .175f), dp(8f), rw(1/8f), rh(0.175f), dp(0f)) }
             }
         }
 

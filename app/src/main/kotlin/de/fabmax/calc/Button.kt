@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import de.fabmax.lightgl.util.Color
 import de.fabmax.lightgl.util.GlFont
+import de.fabmax.lightgl.util.GlMath
 import de.fabmax.lightgl.util.Painter
 
 /**
@@ -23,9 +24,23 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
     val pressAnimSize = FloatAnimation()
 
     override fun paint(painter: Painter) {
-        val color = layoutConfig.color
-        painter.setColor(color)
+        val c = layoutConfig.color
+        if (pressed || !pressAnimAlpha.isDone) {
+            painter.setColor(c)
+            painter.translate(0f, 0f, dp(-16f, context))
+            painter.fillRect(0.0f, 0.0f, width, height)
+            painter.translate(0f, 0f, dp(16f, context))
+        }
+
+        // increase brightness depending on z
+        val b = 1 + GlMath.clamp(z / dp(800f, context), -.2f, .2f);
+        painter.setColor(c[0]*b, c[1]*b, c[2]*b, c[3])
         painter.fillRect(0.0f, 0.0f, width, height)
+
+        if (painter.glContext.state.isPrePass) {
+            // on shadow render pass, quite after background planes are drawn
+            return
+        }
 
         if (!text.isEmpty()) {
             if (fontConfig != null) {
