@@ -19,9 +19,10 @@ fun phoneLayout(appContext: Context): Layout {
     val cyan = Color("#8cf2f2")
     val petrol = Color("#26c6da")
 
-    val chars = CharMap(" 0123456789.=+-*/sincotaner()^vlg\u221A\u03C0CLRDEL")
+    val chars = CharMap(" 0123456789.=+-/sincotaner()^vlgCLRDEL" + CalcPanel.TIMES + CalcPanel.PI + CalcPanel.SQRT)
 
     val fontCfg = GlFont.FontConfig(appContext.assets, "Roboto-Light.ttf", chars, dp(24f, appContext))
+    val fontCfgSmall = GlFont.FontConfig(appContext.assets, "Roboto-Light.ttf", chars, dp(18f, appContext))
     val fontCfgLarge = GlFont.FontConfig(appContext.assets, "Roboto-Thin.ttf", chars, dp(40f, appContext))
 
     return layout(appContext) {
@@ -51,22 +52,22 @@ fun phoneLayout(appContext: Context): Layout {
                     fontConfig = fontCfg
                     fontColor = lightGray
                     text = texts[i]
-                    onClickListener = { -> calcPanel.appendExpression(text) }
+                    onClickListener = { -> calcPanel.buttonPressed(text) }
                 }
                 port { bounds(rw(1/4f * (i%3)), rh(1/4f + (i/3) * 0.15f), rw(1/4f), rh(0.15f)) }
                 land { bounds(rw(1/8f * (i%3)), rh(0.3f + (i/3) * 0.175f), rw(1/8f), rh(0.175f)) }
             }
         }
 
-        texts = arrayListOf("+", "-", "*", "/")
+        texts = arrayListOf("+", "-", CalcPanel.TIMES, "/")
         for (i in 0 .. 3) {
             button {
                 init {
                     color = petrol
-                    fontConfig = fontCfg
+                    fontConfig = fontCfgSmall
                     fontColor = darkGray
                     text = texts[i]
-                    onClickListener = { -> calcPanel.appendExpression(text) }
+                    onClickListener = { -> calcPanel.buttonPressed(text) }
                 }
                 port {
                     bounds(rw(0.75f), rh(1/4f + i * 0.15f), rw(1/4F), rh(0.15f))
@@ -81,10 +82,10 @@ fun phoneLayout(appContext: Context): Layout {
             button {
                 init {
                     color = petrol
-                    fontConfig = fontCfg
+                    fontConfig = fontCfgSmall
                     fontColor = darkGray
                     text = texts[i]
-                    onClickListener = { -> calcPanel.clear() }
+                    onClickListener = { -> calcPanel.buttonPressed(text) }
 
                     val interpolator = ParabolicBoundsInterpolator(layoutConfig)
                     interpolator.amplitudeZ = dp((4-i) * 50f, context)
@@ -100,15 +101,16 @@ fun phoneLayout(appContext: Context): Layout {
             }
         }
 
-        texts = arrayListOf("sin", "cos", "tan", "ln", "log", "inv", "\u221A", "\u03C0", "e", "^", "(", ")")
+        texts = arrayListOf("sin", "cos", "tan", "ln", "log", "inv", CalcPanel.SQRT, CalcPanel.PI,
+                "e", "^", "(", ")")
         for (i in 0 .. 11) {
             button {
                 init {
                     color = cyan
-                    fontConfig = fontCfg
+                    fontConfig = fontCfgSmall
                     fontColor = darkGray
                     text = texts[i]
-                    onClickListener = { -> calcPanel.appendExpression(text) }
+                    onClickListener = { -> calcPanel.buttonPressed(text) }
                 }
                 port { bounds(rw(1.2f+i*0.1f + 1/4f * (i%3)), rh(1/4f + (i/3) * 0.15f), rw(1/4f), rh(0.15f)) }
                 land { bounds(rw(0.625f + 1/8f * (i%3)), rh(0.3f + (i/3) * 0.175f), rw(1/8f), rh(0.175f)) }

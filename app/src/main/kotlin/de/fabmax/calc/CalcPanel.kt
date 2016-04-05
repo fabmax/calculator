@@ -14,6 +14,17 @@ import java.math.MathContext
  */
 class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
 
+    companion object {
+        val TIMES = "\u00D7"
+        val SQRT = "\u221A"
+        val PI = "\u03C0"
+        val DIGITS = Array(10, { i -> ('0' + i).toString()})
+        val OPERATORS = arrayOf("+", "-", TIMES, "/", "^")
+        val PARENTHESIS = arrayOf("(", ")")
+        val CONSTANTS = arrayOf(PI, "e")
+        val FUNCTIONS = arrayOf("sin", "cos", "tan", "asin", "acos", "atan", "ln", "log", SQRT)
+    }
+
     var fontColor: Color = Color.BLACK
     var fontConfig: GlFont.FontConfig? = null
     var font: GlFont? = null
@@ -25,6 +36,10 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
         private set
 
     private val evaluator = SqrtEnabledEvaluator.getInstance()
+
+    object exprState {
+        var number = ""
+    }
 
     override fun paint(painter: Painter) {
         val color = layoutConfig.color
@@ -47,20 +62,110 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
     }
 
     fun clear() {
+        exprState.number = ""
         expr = ""
         result = ""
     }
 
-    fun appendExpression(expr: String) {
-        this.expr += expr
+    private fun delPressed() {
+        if (!expr.isEmpty()) {
+            if (!exprState.number.isEmpty()) {
+                exprState.number = exprState.number.substring(0, exprState.number.lastIndex)
+            }
+            expr = expr.substring(0, expr.lastIndex)
+            evaluate(false)
+        }
+    }
+
+    private fun evaluate(explicit: Boolean) {
+        var e = expr
+        e = e.replace(TIMES, "*")
+
+        val openP = e.count { c -> c == '(' }
+        val closeP = e.count { c -> c == ')' }
+        for (i in 1 .. openP - closeP) {
+            e += ")"
+        }
+        for (i in 1 .. closeP - openP) {
+            e = "(" + e
+        }
+
+        // todo: find items which need an operator in front and insert and implicit * if needed
+
         try {
-            val res = evaluator.evaluate(this.expr)
+            val res = evaluator.evaluate(e)
             result = BigDecimal(res).round(MathContext(15)).stripTrailingZeros().toString()
         } catch(e: Exception) {
-            result = "Error"
+            if (explicit) {
+                result = "Error"
+            } else {
+                result = ""
+            }
             Log.d("CalcPanel", "Error on expression evaluation: " + e.message)
         }
     }
+
+    fun appendExpression(expr: String) {
+        this.expr += expr
+        evaluate(false)
+    }
+
+    fun buttonPressed(button: String) {
+        when (button) {
+            in DIGITS -> digitPressed(button)
+            in OPERATORS -> operatorPressed(button)
+            in CONSTANTS -> constantsPressed(button)
+            in PARENTHESIS -> parenthesisPressed(button)
+            in FUNCTIONS -> functionPressed(button)
+            "." -> dotPressed(button)
+            "DEL" -> delPressed()
+            "CLR" -> clear()
+            "=" -> evaluate(true)
+        }
+    }
+
+    private fun digitPressed(digit: String) {
+        exprState.number += digit
+        appendExpression(digit)
+    }
+
+    private fun dotPressed(dot: String) {
+        if (!exprState.number.contains('.')) {
+            exprState.number += dot
+            appendExpression(dot)
+        }
+    }
+
+    private fun operatorPressed(operator: String) {
+        if (!expr.isEmpty() && !expr.endsWith("(") && !expr.endsWith(SQRT)) {
+            if (expr.substring(expr.lastIndex) in OPERATORS) {
+                // remove existing operator (will be replaced by new one)
+                expr = expr.substring(0, expr.lastIndex)
+            }
+            exprState.number = ""
+            appendExpression(operator)
+        }
+    }
+
+    private fun parenthesisPressed(paren: String) {
+        exprState.number = ""
+        appendExpression(paren)
+    }
+
+    private fun constantsPressed(constant: String) {
+        exprState.number = ""
+        appendExpression(constant)
+    }
+
+    private fun functionPressed(function: String) {
+        var txt = function
+        if (function != SQRT) {
+            txt += "("
+        }
+        exprState.number = ""
+        appendExpression(txt)
+    }
+
 }
 
 class CalcPanelBuilder(context: Context) : AbstractPanelBuilder<CalcPanel>(context) {
