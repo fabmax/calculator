@@ -29,8 +29,9 @@ class MainActivity : LightGlActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setNumSamples(4)
         createEngine(false)
-        //setLogFramesPerSecond(true)
+        setLogFramesPerSecond(true)
 
         val cam = mEngine.camera as PerspectiveCamera
         cam.fovy = 40.0f

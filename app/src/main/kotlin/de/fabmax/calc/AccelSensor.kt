@@ -19,6 +19,7 @@ class AccelSensor : SensorEventListener {
     private var mCam: Camera? = null
     private val mFilter = Filter()
     private var mRotation = 0f
+    private var mSnappedIn = true
 
     fun setCamera(cam: Camera) {
         mCam = cam
@@ -52,18 +53,23 @@ class AccelSensor : SensorEventListener {
         val y = event.values[1]
         val m = Math.sqrt((x * x + y * y).toDouble()).toFloat()
 
+        val thresh = when(mSnappedIn) {
+            true -> ROT_THRESH
+            else -> ROT_THRESH / 3
+        }
+
         var a = (Math.atan2(x.toDouble(), y.toDouble())).toFloat()
         if (m > MAG_THRESH) {
             // if magnitude is large enough, determine screen orientation from acceleration vector
-            if (Math.abs(a) < ROT_THRESH) {
+            if (Math.abs(a) < thresh) {
                 a = 0f
-            } else if (Math.abs(a - PI_2) < ROT_THRESH) {
+            } else if (Math.abs(a - PI_2) < thresh) {
                 a = PI_2
-            } else if (Math.abs(a + PI_2) < ROT_THRESH) {
+            } else if (Math.abs(a + PI_2) < thresh) {
                 a = -PI_2
-            } else if (Math.abs(a - PI) < ROT_THRESH) {
+            } else if (Math.abs(a - PI) < thresh) {
                 a = PI
-            } else if (Math.abs(a + PI) < ROT_THRESH) {
+            } else if (Math.abs(a + PI) < thresh) {
                 a = -PI
             }
         } else {
@@ -80,6 +86,8 @@ class AccelSensor : SensorEventListener {
                 a = -PI
             }
         }
+        mSnappedIn = Math.abs((a % PI_2).toDouble()) < 0.0001
+
         mRotation = mFilter.update(a)
         //mCam?.setUpDirection((-Math.cos(mRotation.toDouble())).toFloat(), Math.sin(mRotation.toDouble()).toFloat(), 0f)
         mCam?.setUpDirection((Math.sin(mRotation.toDouble())).toFloat(), Math.cos(mRotation.toDouble()).toFloat(), 0f)

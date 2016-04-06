@@ -2,7 +2,10 @@ package de.fabmax.calc
 
 import android.content.Context
 import android.util.Log
+import de.fabmax.calc.animFont.AnimateableChar
+import de.fabmax.calc.animFont.AnimatedText
 import de.fabmax.lightgl.BoundingBox
+import de.fabmax.lightgl.scene.DynamicLineMesh
 import de.fabmax.lightgl.util.Color
 import de.fabmax.lightgl.util.GlFont
 import de.fabmax.lightgl.util.Painter
@@ -12,30 +15,27 @@ import java.math.MathContext
 /**
  * The panel used to display the current expression and result
  */
-class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
+class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), context) {
 
     companion object {
-        val TIMES = "\u00D7"
-        val SQRT = "\u221A"
-        val PI = "\u03C0"
+        val TIMES = '\u00D7'
+        val SQRT = '\u221A'
+        val PI = '\u03C0'
         val DIGITS = Array(10, { i -> ('0' + i).toString()})
-        val OPERATORS = arrayOf("+", "-", TIMES, "/", "^")
+        val OPERATORS = arrayOf("+", "-", TIMES.toString(), "/", "^")
         val PARENTHESIS = arrayOf("(", ")")
-        val CONSTANTS = arrayOf(PI, "e")
-        val FUNCTIONS = arrayOf("sin", "cos", "tan", "asin", "acos", "atan", "ln", "log", SQRT)
+        val CONSTANTS = arrayOf(PI.toString(), "e")
+        val FUNCTIONS = arrayOf("sin", "cos", "tan", "asin", "acos", "atan", "ln", "log", SQRT.toString())
     }
-
-    var fontColor: Color = Color.BLACK
-    var fontConfig: GlFont.FontConfig? = null
-    var font: GlFont? = null
 
     var expr: String = ""
         private set
 
-    var result: String = ""
-        private set
+    var time = System.currentTimeMillis()
 
     private val evaluator = SqrtEnabledEvaluator.getInstance()
+    private val animExpr = AnimatedText(32)
+    private val animResult = AnimatedText(32)
 
     object exprState {
         var number = ""
@@ -46,25 +46,33 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
         painter.setColor(color)
         painter.fillRect(0.0f, 0.0f, width, height)
 
-        if (fontConfig != null) {
-            font = GlFont.createFont(painter.glContext, fontConfig, fontColor)
-            fontConfig = null
-        }
-        if (font != null) {
-            painter.font = font
+        if (painter.glContext.state.isPrePass) {
+            return
         }
 
-        val y = (height + painter.font.fontSize * 0.65f) / 2.0f
-        var x1 = (width - painter.font.getStringWidth(expr) - dp(16f, context))
-        var x2 = (width - painter.font.getStringWidth(result) - dp(16f, context))
-        painter.drawString(x1, y - painter.font.lineSpace / 2, expr)
-        painter.drawString(x2, y + painter.font.lineSpace / 2, result)
+        val t = System.currentTimeMillis()
+        val dt = (t - time) / 1000f
+        time = t
+        animExpr.animate(dt)
+        animResult.animate(dt)
+
+        val margin = dp(32f, context)
+        val textSz = layoutConfig.textSize
+
+        painter.pushTransform()
+        painter.translate(width - margin, height/2 - textSz * .75f, 0f)
+        animExpr.draw(painter, textSz, width)
+        painter.translate(0f, textSz * 1.5f, 0f)
+        animResult.draw(painter, textSz, width)
+
+        painter.popTransform()
     }
 
     fun clear() {
         exprState.number = ""
         expr = ""
-        result = ""
+        animExpr.setText(expr)
+        animResult.setText("")
     }
 
     private fun delPressed() {
@@ -74,12 +82,13 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
             }
             expr = expr.substring(0, expr.lastIndex)
             evaluate(false)
+            animExpr.setText(this.expr)
         }
     }
 
     private fun evaluate(explicit: Boolean) {
         var e = expr
-        e = e.replace(TIMES, "*")
+        e = e.replace(TIMES, '*')
 
         val openP = e.count { c -> c == '(' }
         val closeP = e.count { c -> c == ')' }
@@ -93,13 +102,34 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
         // todo: find items which need an operator in front and insert and implicit * if needed
 
         try {
+            Log.d("CalcPanel", "Evaluating: " + e)
             val res = evaluator.evaluate(e)
-            result = BigDecimal(res).round(MathContext(15)).stripTrailingZeros().toString()
+            var resStr = BigDecimal(res).round(MathContext(15)).toString()
+            Log.d("CalcPanel", "Result: " + resStr)
+
+            // unfortunately BigDecimal.stripTrailingZeros() also removes 0 before the decimal point
+            // so 10 becomes 1e1 which is ugly...
+            while (!resStr.isEmpty() && (resStr.endsWith('0') || resStr.endsWith('.'))) {
+                resStr = resStr.substring(0, resStr.lastIndex-1)
+            }
+
+            if (resStr != e) {
+                if (explicit) {
+                    this.expr = resStr
+                    exprState.number = resStr
+                    animExpr.setText(resStr)
+                    animResult.setText("")
+                } else {
+                    animResult.setText(resStr)
+                }
+            } else {
+                animResult.setText("")
+            }
         } catch(e: Exception) {
             if (explicit) {
-                result = "Error"
+                animResult.setText("error")
             } else {
-                result = ""
+                animResult.setText("")
             }
             Log.d("CalcPanel", "Error on expression evaluation: " + e.message)
         }
@@ -108,6 +138,7 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
     fun appendExpression(expr: String) {
         this.expr += expr
         evaluate(false)
+        animExpr.setText(this.expr)
     }
 
     fun buttonPressed(button: String) {
@@ -144,6 +175,9 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
             }
             exprState.number = ""
             appendExpression(operator)
+        } else if (operator == "-") {
+            exprState.number = ""
+            appendExpression(operator)
         }
     }
 
@@ -159,7 +193,7 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
 
     private fun functionPressed(function: String) {
         var txt = function
-        if (function != SQRT) {
+        if (function != SQRT.toString()) {
             txt += "("
         }
         exprState.number = ""
@@ -168,7 +202,42 @@ class CalcPanel(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
 
 }
 
+open class CalcPanelConfig : PanelConfig() {
+    private val props = Array(Orientation.ALL, { i -> CalcPanelProperties() })
+
+    var textSize = 0f
+
+    override fun mixConfigs(portLandMix: Float) {
+        super.mixConfigs(portLandMix)
+
+        textSize = props[Orientation.PORTRAIT].textSize * portLandMix +
+                props[Orientation.LANDSCAPE].textSize * (1f- portLandMix)
+    }
+
+    fun getCalcPanelProperties(orientation: Int): CalcPanelProperties {
+        return props[orientation]
+    }
+
+    fun setTextSize(orientation: Int, size: Float) {
+        if (orientation >= 0 && orientation < props.size) {
+            props[orientation].textSize = size
+        } else {
+            props.forEach { p -> p.textSize = size }
+        }
+    }
+}
+
+class CalcPanelProperties {
+    var textSize = 100f
+}
+
 class CalcPanelBuilder(context: Context) : AbstractPanelBuilder<CalcPanel>(context) {
+    var textSize: Float
+        get() = element.layoutConfig.getCalcPanelProperties(orientation).textSize
+        set(value) {
+            element.layoutConfig.setTextSize(orientation, value)
+        }
+
     override fun create(): CalcPanel {
         return CalcPanel(context)
     }

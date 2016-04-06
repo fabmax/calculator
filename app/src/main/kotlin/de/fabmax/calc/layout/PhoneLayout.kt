@@ -31,15 +31,15 @@ fun phoneLayout(appContext: Context): Layout {
 
         val calcPanel = calcPanel {
             init {
-                fontConfig = fontCfgLarge
-                fontColor = darkGray
                 color = lightGray
             }
             port {
                 bounds(dp(0f), dp(0f), dp(16f), rw(1.02f), rh(0.26f), dp(0f))
+                textSize = dp(40f, context)
             }
             land {
-                bounds(dp(0f), dp(0f), dp(16f), rw(1.02f), rh(0.31f), dp(0f))
+                bounds(dp(0f), dp(0f), dp(16f), rw(1.03f), rh(0.31f), dp(0f))
+                textSize = dp(30f, context)
             }
         }
 
@@ -58,7 +58,7 @@ fun phoneLayout(appContext: Context): Layout {
             }
         }
 
-        texts = arrayListOf("+", "-", CalcPanel.TIMES, "/")
+        texts = arrayListOf("+", "-", CalcPanel.TIMES.toString(), "/")
         for (i in 0 .. 3) {
             button {
                 init {
@@ -103,8 +103,8 @@ fun phoneLayout(appContext: Context): Layout {
             }
         }
 
-        texts = arrayListOf("sin", "cos", "tan", "ln", "log", "inv", CalcPanel.SQRT, CalcPanel.PI,
-                "e", "^", "(", ")")
+        texts = arrayListOf("sin", "cos", "tan", "ln", "log", "inv", CalcPanel.SQRT.toString(),
+                CalcPanel.PI.toString(), "e", "^", "(", ")")
         for (i in 0 .. 11) {
             button {
                 init {
@@ -114,7 +114,10 @@ fun phoneLayout(appContext: Context): Layout {
                     text = texts[i]
                     onClickListener = { -> calcPanel.buttonPressed(text) }
                 }
-                port { bounds(rw(1.2f+i*0.1f + 1/4f * (i%3)), rh(1/4f + (i/3) * 0.15f), rw(1/4f), rh(0.15f)) }
+                port {
+                    bounds(rw(1.4f + 1/8f * (i%3) + i/3*.25f), rh(1/4f + (i/3) * 0.15f),
+                            dp((i/3+1) * -50f), rw(1/4f), rh(0.15f), dp(0f))
+                }
                 land { bounds(rw(0.625f + 1/8f * (i%3)), rh(0.3f + (i/3) * 0.175f), rw(1/8f), rh(0.175f)) }
             }
         }
