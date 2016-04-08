@@ -1,4 +1,4 @@
-package de.fabmax.calc
+package de.fabmax.calc.ui
 
 import android.content.Context
 import de.fabmax.lightgl.BoundingBox
@@ -12,7 +12,8 @@ import java.util.*
 class Layout(context: Context) : UiElement<LayoutConfig>(LayoutConfig(), context) {
 
     private val childComparator = Comparator<UiElement<*>> { a, b ->
-        java.lang.Float.compare(a.bounds.minZ, b.bounds.minZ) }
+        java.lang.Float.compare(a.bounds.minZ, b.bounds.minZ)
+    }
     private val children = ArrayList<UiElement<*>>()
 
     private val localRay = Ray()

@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import de.fabmax.calc.layout.phoneLayout
+import de.fabmax.calc.ui.Layout
+import de.fabmax.calc.ui.Orientation
 import de.fabmax.lightgl.*
 import de.fabmax.lightgl.scene.Node
 import de.fabmax.lightgl.scene.TransformGroup

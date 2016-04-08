@@ -1,7 +1,9 @@
-package de.fabmax.calc
+package de.fabmax.calc.ui
 
 import android.content.Context
 import android.util.Log
+import de.fabmax.calc.ui.BoundsInterpolator
+import de.fabmax.calc.ui.LinearBoundsInterpolator
 import de.fabmax.lightgl.BoundingBox
 import de.fabmax.lightgl.util.GlMath
 

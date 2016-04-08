@@ -1,7 +1,9 @@
-package de.fabmax.calc
+package de.fabmax.calc.ui
 
 import android.content.Context
+import android.opengl.Matrix
 import android.util.Log
+import de.fabmax.calc.FloatAnimation
 import de.fabmax.lightgl.util.Color
 import de.fabmax.lightgl.util.GlFont
 import de.fabmax.lightgl.util.GlMath
@@ -24,8 +26,19 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
     val pressAnimAlpha = FloatAnimation()
     val pressAnimSize = FloatAnimation()
 
+//    private var ang = 0f
+
     override fun paint(painter: Painter) {
         val c = layoutConfig.color
+
+//        if (text == "5") {
+//            painter.glContext.state.pushModelMatrix()
+//            //Matrix.translateM(painter.glContext.state.modelMatrix, 0, 100f, 0f, 0f)
+//            Matrix.rotateM(painter.glContext.state.modelMatrix, 0, ang, 1f, 0f, 0f)
+//            painter.glContext.state.matrixUpdate()
+//            ang += 1f
+//        }
+
         if (pressed || !pressAnimAlpha.isDone) {
             painter.setColor(c)
             painter.translate(0f, 0f, dp(-16f, context))
@@ -39,6 +52,9 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
         painter.fillRect(0.0f, 0.0f, width, height)
 
         if (painter.glContext.state.isPrePass) {
+//            if (text == "5") {
+//                painter.glContext.state.popModelMatrix()
+//            }
             // on shadow render pass, quite after background planes are drawn
             return
         }
@@ -61,6 +77,11 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
             painter.setColor(Color.YELLOW, pressAnimAlpha.animate())
             painter.fillCircle(pressX, pressY, pressAnimSize.animate())
         }
+
+//        if (text == "5") {
+//            painter.commit()
+//            painter.glContext.state.popModelMatrix()
+//        }
     }
 
     override fun onPress(x: Float, y: Float) {

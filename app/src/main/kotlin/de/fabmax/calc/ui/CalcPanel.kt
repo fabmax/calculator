@@ -1,7 +1,8 @@
-package de.fabmax.calc
+package de.fabmax.calc.ui
 
 import android.content.Context
 import android.util.Log
+import de.fabmax.calc.ui.SqrtEnabledEvaluator
 import de.fabmax.calc.animFont.AnimateableChar
 import de.fabmax.calc.animFont.AnimatedText
 import de.fabmax.lightgl.BoundingBox

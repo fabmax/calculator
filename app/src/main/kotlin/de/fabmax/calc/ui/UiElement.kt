@@ -1,4 +1,4 @@
-package de.fabmax.calc
+package de.fabmax.calc.ui
 
 import android.content.Context
 import android.util.Log

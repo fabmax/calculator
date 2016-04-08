@@ -1,5 +1,7 @@
-package de.fabmax.calc
+package de.fabmax.calc.ui
 
+import de.fabmax.calc.ui.LayoutConfig
+import de.fabmax.calc.ui.Orientation
 import de.fabmax.lightgl.BoundingBox
 
 /**

@@ -1,4 +1,4 @@
-package de.fabmax.calc
+package de.fabmax.calc.ui
 
 import com.fathzer.soft.javaluator.Constant
 import com.fathzer.soft.javaluator.DoubleEvaluator

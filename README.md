@@ -1,7 +1,7 @@
 # Calculator
 An Android calculator app with my own OpenGL-based UI. I did this as a little
-experiment to see how fully animated orientation changes could work. However I'm
-not a UX guy so this might be complete rubbish :)
+experiment to see how fully animated orientation changes and true 3D layouts could
+work. However I'm not a UX guy so this might be complete rubbish :)
 
 I tried to make this as Material-Design-ish as possible, so the app looks pretty
 standard at first. However, rotate the screen or hit the view button and you should
@@ -64,8 +64,13 @@ Once the layout is created we can add the buttons to it. Within the ``init { }``
 the button properties are set. Finally, within the ``port { }`` and ``land { }`` blocks
 the button bounds for portrait and landscape orientations are defined. Bounds are
 always relative to the next higher parent. Besides rw() and rh() for relative sizes
-there is also dp() which defines an absolute size with the usual Android dp units.
-Moreover, ``SizeSpec``s can be chained together with + and -.
+there is also dp() which defines a pixel perfect absolute size with the usual Android
+dp units. Moreover, ``SizeSpec``s can be chained together with + and -.
+
+There is also a second bounds() method with two additional parameters for z and depth.
+Positive z values will make UI elements appear nearer, negative values farther away.
+The default z value used by the 4 parameter version is 0. Also keep in mind that,
+because of the perspective camera, layouts are only pixel-perfect at z = 0.
 
 To see how all this works syntax-wise take a look into the Kotlin docs.
 
@@ -82,6 +87,8 @@ done, so there are a few pretty major ones:
   optimized for draw calls or anything. Moreover especially the shadow computation is
   pretty expensive so this will eat up your battery in no-time (and also doesn't work
   very well on slower devices)
+* I haven't really cared for the integration of Android ressources (strings, dimens,
+  etc.) but it should be pretty straight-forward to do so.
 
 
 ## License:

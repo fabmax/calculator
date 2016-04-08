@@ -1,10 +1,8 @@
 package de.fabmax.calc.animFont
 
 import android.util.Log
-import de.fabmax.calc.CalcPanel
 import java.util.HashMap
 
-import de.fabmax.lightgl.scene.DynamicLineMesh
 import de.fabmax.lightgl.util.*
 
 open class AnimateableChar {
@@ -198,6 +196,10 @@ open class AnimateableChar {
 
         val NULL_CHAR = makeNull()
 
+        val TIMES = '\u00D7'
+        val SQRT = '\u221A'
+        val PI = '\u03C0'
+
         private val CHARS = object : HashMap<Char, AnimateableChar>() {
             init {
                 put('0', make0())
@@ -213,7 +215,7 @@ open class AnimateableChar {
                 put('.', makeComma())
                 put('+', makePlus())
                 put('-', makeMinus())
-                put(CalcPanel.TIMES, makeTimes())
+                put(TIMES, makeTimes())
                 put('/', makeSlash())
                 put('^', makePow())
                 put('(', makeParenOpen())
@@ -229,8 +231,8 @@ open class AnimateableChar {
                 put('r', make_r())
                 put('s', makeS(true))
                 put('t', make_t())
-                put(CalcPanel.PI, makePi())
-                put(CalcPanel.SQRT, makeSqrt())
+                put(PI, makePi())
+                put(SQRT, makeSqrt())
             }
         }
 
