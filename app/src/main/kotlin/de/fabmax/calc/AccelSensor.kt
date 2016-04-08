@@ -18,8 +18,9 @@ class AccelSensor : SensorEventListener {
 
     private var mCam: Camera? = null
     private val mFilter = Filter()
-    private var mRotation = 0f
     private var mSnappedIn = true
+
+    var rotation = 0f
 
     fun setCamera(cam: Camera) {
         mCam = cam
@@ -40,7 +41,7 @@ class AccelSensor : SensorEventListener {
 
     val normalizedHV: Float
         get() {
-            val r = Math.abs(mRotation)
+            val r = Math.abs(rotation)
             if (r < PI_2) {
                 return 1 - r / PI_2
             } else {
@@ -75,23 +76,23 @@ class AccelSensor : SensorEventListener {
             }
         } else {
             // else lock screen orientation to nearest 90° step
-            if (Math.abs(mRotation) < PI_4) {
+            if (Math.abs(rotation) < PI_4) {
                 a = 0f
-            } else if (Math.abs(mRotation - PI_2) < PI_4) {
+            } else if (Math.abs(rotation - PI_2) < PI_4) {
                 a = PI_2
-            } else if (Math.abs(mRotation + PI_2) < PI_4) {
+            } else if (Math.abs(rotation + PI_2) < PI_4) {
                 a = -PI_2
-            } else if (Math.abs(mRotation - PI) < PI_4) {
+            } else if (Math.abs(rotation - PI) < PI_4) {
                 a = PI
-            } else if (Math.abs(mRotation + PI) < PI_4) {
+            } else if (Math.abs(rotation + PI) < PI_4) {
                 a = -PI
             }
         }
         mSnappedIn = Math.abs((a % PI_2).toDouble()) < 0.0001
 
-        mRotation = mFilter.update(a)
+        rotation = mFilter.update(a)
         //mCam?.setUpDirection((-Math.cos(mRotation.toDouble())).toFloat(), Math.sin(mRotation.toDouble()).toFloat(), 0f)
-        mCam?.setUpDirection((Math.sin(mRotation.toDouble())).toFloat(), Math.cos(mRotation.toDouble()).toFloat(), 0f)
+        mCam?.setUpDirection((Math.sin(rotation.toDouble())).toFloat(), Math.cos(rotation.toDouble()).toFloat(), 0f)
     }
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
@@ -132,6 +133,6 @@ class AccelSensor : SensorEventListener {
         private val PI_4 = PI / 4
         private val ROT_THRESH = Math.toRadians(30.0).toFloat()
         private val MAG_THRESH = 5.0f
-        private val MAG_THRESH_Z = 5.0f
+        private val MAG_THRESH_Z = 7.0f
     }
 }

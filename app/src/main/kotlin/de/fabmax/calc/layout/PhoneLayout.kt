@@ -9,7 +9,7 @@ import de.fabmax.lightgl.util.GlFont
 /**
  * Phone layout definition
  */
-fun phoneLayout(appContext: Context): Layout {
+fun phoneLayout(activity: MainActivity): Layout {
     val lightGray = Color("#e1e7ea")
     val gray = Color("#78909c")
     val darkGray = Color("#536771")
@@ -18,15 +18,14 @@ fun phoneLayout(appContext: Context): Layout {
     val cyan = Color("#8cf2f2")
     val petrol = Color("#26c6da")
 
-    val chars = CharMap(" 0123456789.=+-/sincotaner()^vlgCLRDEL" + CalcPanel.TIMES + CalcPanel.PI + CalcPanel.SQRT)
+    val chars = CharMap(" 0123456789.=+-/sincotaer()^vlgCLRDELw" + CalcPanel.TIMES + CalcPanel.PI + CalcPanel.SQRT)
 
-    val fontCfg = GlFont.FontConfig(appContext.assets, "Roboto-Light.ttf", chars, dp(28f, appContext))
-    val fontCfgSmall = GlFont.FontConfig(appContext.assets, "Roboto-Light.ttf", chars, dp(18f, appContext))
-    val fontCfgLarge = GlFont.FontConfig(appContext.assets, "Roboto-Thin.ttf", chars, dp(40f, appContext))
+    val fontCfg = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(28f, activity))
+    val fontCfgSmall = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(18f, activity))
+    val fontCfgLarge = GlFont.FontConfig(activity.assets, "Roboto-Thin.ttf", chars, dp(40f, activity))
 
-    return layout(appContext) {
-        port { bounds(rw(-0.5f), rh(-0.5f), rw(1.0f), rh(1.0f)) }
-        land { bounds(rw(-0.5f), rh(-0.5f), rw(1.0f), rh(1.0f)) }
+    return layout(activity) {
+        bounds(rw(-0.5f), rh(-0.5f), rw(1.0f), rh(1.0f))
 
         val calcPanel = calcPanel {
             init {
@@ -77,7 +76,7 @@ fun phoneLayout(appContext: Context): Layout {
             }
         }
 
-        texts = arrayListOf("CLR", "DEL", "", "=")
+        texts = arrayListOf("CLR", "DEL", "view", "=")
         for (i in 0 .. 3) {
             button {
                 init {
@@ -85,7 +84,11 @@ fun phoneLayout(appContext: Context): Layout {
                     fontConfig = fontCfgSmall
                     fontColor = darkGray
                     text = texts[i]
-                    onClickListener = { -> calcPanel.buttonPressed(text) }
+                    if (text == "view") {
+                        onClickListener = { -> activity.toggleCamera() }
+                    } else {
+                        onClickListener = { -> calcPanel.buttonPressed(text) }
+                    }
 
                     val interpolator = ParabolicBoundsInterpolator(layoutConfig)
                     interpolator.amplitudeZ = dp((4-i) * 50f, context)
