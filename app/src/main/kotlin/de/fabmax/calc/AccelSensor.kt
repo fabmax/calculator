@@ -51,15 +51,16 @@ class AccelSensor : SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         val x = event.values[0]
         val y = event.values[1]
+        val z = event.values[2]
         val m = Math.sqrt((x * x + y * y).toDouble()).toFloat()
 
         val thresh = when(mSnappedIn) {
             true -> ROT_THRESH
-            else -> ROT_THRESH / 3
+            else -> ROT_THRESH / 4
         }
 
         var a = (Math.atan2(x.toDouble(), y.toDouble())).toFloat()
-        if (m > MAG_THRESH) {
+        if (m > MAG_THRESH && z < MAG_THRESH_Z) {
             // if magnitude is large enough, determine screen orientation from acceleration vector
             if (Math.abs(a) < thresh) {
                 a = 0f
@@ -98,10 +99,11 @@ class AccelSensor : SensorEventListener {
     }
 
     private inner class Filter {
-        internal var mBuf = FloatArray(8)
-        internal var mIdx = 0
+        var mBuf = FloatArray(16)
+        var mSorted = FloatArray(mBuf.size)
+        var mIdx = 0
 
-        internal fun update(f: Float): Float {
+        fun update(f: Float): Float {
             mBuf[mIdx++] = f
             if (mIdx >= mBuf.size) {
                 mIdx = 0
@@ -128,7 +130,8 @@ class AccelSensor : SensorEventListener {
         private val PI = Math.PI.toFloat()
         private val PI_2 = PI / 2
         private val PI_4 = PI / 4
-        private val ROT_THRESH = Math.toRadians(20.0).toFloat()
-        private val MAG_THRESH = 4.0f
+        private val ROT_THRESH = Math.toRadians(30.0).toFloat()
+        private val MAG_THRESH = 5.0f
+        private val MAG_THRESH_Z = 5.0f
     }
 }

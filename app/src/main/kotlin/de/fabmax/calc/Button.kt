@@ -12,6 +12,7 @@ import de.fabmax.lightgl.util.Painter
  */
 class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
 
+    val pressColor = Color("#ef5350")
     var fontColor: Color = Color.BLACK
     var fontConfig: GlFont.FontConfig? = null
     var font: GlFont? = null
@@ -57,7 +58,7 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
         }
 
         if (pressed || !pressAnimAlpha.isDone) {
-            painter.setColor(1f, 1f, 0f, pressAnimAlpha.animate())
+            painter.setColor(Color.YELLOW, pressAnimAlpha.animate())
             painter.fillCircle(pressX, pressY, pressAnimSize.animate())
         }
     }
@@ -69,7 +70,7 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
 
         // circle animation
         pressAnimSize.start(dp(60f, context), dp(100f, context)).overTime(0.1f, true)
-        pressAnimAlpha.start(0f, 0.3f).overTime(0.1f, false)
+        pressAnimAlpha.start(0f, 0.5f).overTime(0.1f, false)
 
         // elevate button
         layoutConfig.translate(Orientation.ALL, 0f, 0f, dp(16f, context))

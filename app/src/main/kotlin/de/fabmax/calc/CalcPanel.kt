@@ -109,8 +109,10 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
 
             // unfortunately BigDecimal.stripTrailingZeros() also removes 0 before the decimal point
             // so 10 becomes 1e1 which is ugly...
-            while (!resStr.isEmpty() && (resStr.endsWith('0') || resStr.endsWith('.'))) {
-                resStr = resStr.substring(0, resStr.lastIndex-1)
+            if (resStr.contains('.')) {
+                while (resStr.endsWith('0') || resStr.endsWith('.')) {
+                    resStr = resStr.substring(0, resStr.lastIndex)
+                }
             }
 
             if (resStr != e) {

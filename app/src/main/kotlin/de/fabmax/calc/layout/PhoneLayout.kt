@@ -10,7 +10,6 @@ import de.fabmax.lightgl.util.GlFont
  * Phone layout definition
  */
 fun phoneLayout(appContext: Context): Layout {
-    //appContext.resources.getColor(R.color.lightGray, null)
     val lightGray = Color("#e1e7ea")
     val gray = Color("#78909c")
     val darkGray = Color("#536771")
