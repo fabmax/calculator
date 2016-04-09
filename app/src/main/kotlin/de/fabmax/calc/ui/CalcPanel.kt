@@ -106,6 +106,7 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
             Log.d("CalcPanel", "Evaluating: " + e)
             val res = evaluator.evaluate(e)
             var resStr = BigDecimal(res).round(MathContext(15)).toString()
+            resStr = resStr.replace('E', 'e')
             Log.d("CalcPanel", "Result: " + resStr)
 
             // unfortunately BigDecimal.stripTrailingZeros() also removes 0 before the decimal point

@@ -35,6 +35,8 @@ abstract class UiElement<T: LayoutConfig>(config: T, context: Context) {
 
     var pressed = false
 
+    private var mPressTime = 0L
+
     abstract fun paint(painter: Painter)
 
     open fun doLayout(orientation: Int, parentBounds: BoundingBox, ctx: Context):
@@ -47,6 +49,12 @@ abstract class UiElement<T: LayoutConfig>(config: T, context: Context) {
 
     open fun mixConfigs(portLandMix: Float) {
         layoutConfig.mixConfigs(portLandMix)
+
+        // this is a pretty nasty hack needed to prevent buttons stay in the pressed state
+        if (pressed && System.currentTimeMillis() - mPressTime > 1000) {
+            pressed = false
+            onRelease()
+        }
     }
 
     open fun processTouch(ray: Ray, action: Int) {
@@ -63,7 +71,6 @@ abstract class UiElement<T: LayoutConfig>(config: T, context: Context) {
                 onPress(x, y)
             } else  if (!pressed and pressedBefore) {
                 onRelease()
-                onClickListener?.invoke()
             }
 
             onTouchListener?.invoke(x, y, action)
@@ -71,11 +78,11 @@ abstract class UiElement<T: LayoutConfig>(config: T, context: Context) {
     }
 
     open fun onPress(x: Float, y: Float) {
-        // default does nothing
+        mPressTime = System.currentTimeMillis()
     }
 
     open fun onRelease() {
-        // default does nothing
+        onClickListener?.invoke()
     }
 }
 

@@ -12,7 +12,7 @@ import java.util.*
 class Layout(context: Context) : UiElement<LayoutConfig>(LayoutConfig(), context) {
 
     private val childComparator = Comparator<UiElement<*>> { a, b ->
-        java.lang.Float.compare(a.bounds.minZ, b.bounds.minZ)
+        java.lang.Float.compare(a.bounds.maxZ, b.bounds.maxZ)
     }
     private val children = ArrayList<UiElement<*>>()
 

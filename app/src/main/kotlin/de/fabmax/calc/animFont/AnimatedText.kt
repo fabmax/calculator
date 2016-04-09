@@ -110,8 +110,13 @@ class AnimatedText(maxChars: Int) {
                 }
                 painter.commit()
                 if (dots[i]) {
+                    Matrix.translateM(ctx.state.modelMatrix, 0, -chars[i].charAdvance / 2, 0f, 0f)
+                    ctx.state.matrixUpdate()
                     painter.setColor(gray)
                     dotChar.draw(painter)
+                    painter.commit()
+                    Matrix.translateM(ctx.state.modelMatrix, 0, chars[i].charAdvance / 2, 0f, 0f)
+                    ctx.state.matrixUpdate()
                 }
             }
             w -= chars[i].charAdvance * scale

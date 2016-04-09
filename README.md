@@ -78,17 +78,22 @@ To see how all this works syntax-wise take a look into the Kotlin docs.
 This is only a proof-of-concept I made to see if and how animated layout changes can be
 done, so there are a few pretty major ones:
 * Currently the only available UI elements are buttons and a very specific calculator
-  text panel
+  text panel.
 * There are no layout managers, component bounds always have to be explicitly specified.
   The chainable rw(), rh() and dp() methods are surprisingly flexible but obviously they
-  can't replace a true layout manager like ``RelativeLayout``
+  can't replace a true layout manager like ``RelativeLayout``.
 * The code is not really optimized for performance. The engine itself is pretty fast
   (though written entirely in Java). However the way the UI elements are composed isn't
   optimized for draw calls or anything. Moreover especially the shadow computation is
   pretty expensive so this will eat up your battery in no-time (and also doesn't work
-  very well on slower devices)
+  very well on slower devices).
+* Touch input is very basic.
+* The system screen orientation is locked to portrait, otherwise the orientation change
+  animation would be interrupted by the system screen orientation change.
 * I haven't really cared for the integration of Android ressources (strings, dimens,
   etc.) but it should be pretty straight-forward to do so.
+* The code is a bit of a mess - I'm still new to Kotlin and still working on getting
+  a feeling for good style.
 
 
 ## License:

@@ -213,6 +213,7 @@ open class AnimateableChar {
                 put('8', make8())
                 put('9', make9())
                 put('.', makeComma())
+                put(',', makeComma())
                 put('+', makePlus())
                 put('-', makeMinus())
                 put(TIMES, makeTimes())
@@ -364,8 +365,8 @@ open class AnimateableChar {
 
         private fun makeComma(): AnimateableChar {
             val coords = FloatList()
-            line(coords, -1f, -.9f, -1f, -.95f, 2)
-            line(coords, -1f, -.95f, -.85f, -1.1f, 2)
+            line(coords, -.1f, -.9f, -.1f, -1f, 2)
+            line(coords, -.1f, -1f, .05f, -1.2f, 2)
             return AnimateableChar(",", coords, 0f)
         }
 
