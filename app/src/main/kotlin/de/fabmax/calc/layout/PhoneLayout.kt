@@ -19,11 +19,12 @@ fun phoneLayout(activity: MainActivity): Layout {
     val cyan = Color("#8cf2f2")
     val petrol = Color("#26c6da")
 
-    val chars = CharMap(" 0123456789.=+-/sincotaer()^vlgCLRDELw" + CalcPanel.TIMES + CalcPanel.PI + CalcPanel.SQRT)
+    val chars = CharMap(" 0123456789.=+-/sincotaer()^vlgCLRDELw" + CalcPanel.TIMES +
+            CalcPanel.DIVISION + CalcPanel.PI + CalcPanel.SQRT)
 
     val fontCfg = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(28f, activity))
     val fontCfgSmall = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(18f, activity))
-    val fontCfgLarge = GlFont.FontConfig(activity.assets, "Roboto-Thin.ttf", chars, dp(40f, activity))
+    val fontCfgLarge = GlFont.FontConfig(activity.assets, "Roboto-Thin.ttf", chars, dp(44f, activity))
 
     return layout(activity) {
         bounds(rw(-0.5f), rh(-0.5f), rw(1.0f), rh(1.0f))
@@ -31,14 +32,16 @@ fun phoneLayout(activity: MainActivity): Layout {
         val calcPanel = calcPanel {
             init {
                 color = lightGray
+                fontConfig = fontCfgLarge
+                fontColor = gray
             }
             port {
                 bounds(dp(0f), dp(0f), dp(16f), rw(1.02f), rh(0.26f), dp(0f))
-                textSize = dp(40f, context)
+                textSize = 1f
             }
             land {
-                bounds(dp(0f), dp(0f), dp(16f), rw(1.03f), rh(0.31f), dp(0f))
-                textSize = dp(30f, context)
+                bounds(dp(0f), dp(0f), dp(16f), rw(1.025f), rh(0.31f), dp(0f))
+                textSize = 0.75f
             }
         }
 
@@ -57,7 +60,7 @@ fun phoneLayout(activity: MainActivity): Layout {
             }
         }
 
-        texts = arrayListOf("+", "-", CalcPanel.TIMES.toString(), "/")
+        texts = arrayListOf("+", "-", CalcPanel.TIMES.toString(), CalcPanel.DIVISION.toString())
         for (i in 0..3) {
             button {
                 init {

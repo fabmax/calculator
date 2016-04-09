@@ -82,6 +82,8 @@ done, so there are a few pretty major ones:
 * There are no layout managers, component bounds always have to be explicitly specified.
   The chainable rw(), rh() and dp() methods are surprisingly flexible but obviously they
   can't replace a true layout manager like ``RelativeLayout``.
+* There is no clipping done for the individual UI elements, hence a UI element can paint
+  anywhere not only within its bounds.
 * The code is not really optimized for performance. The engine itself is pretty fast
   (though written entirely in Java). However the way the UI elements are composed isn't
   optimized for draw calls or anything. Moreover especially the shadow computation is

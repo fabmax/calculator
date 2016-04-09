@@ -194,14 +194,16 @@ open class AnimateableChar {
 
         val N_VERTS = 60
 
-        val NULL_CHAR = makeNull()
+        val NULL_CHAR = makeNull(0f)
 
         val TIMES = '\u00D7'
+        val DIVISION = '\u00F7'
         val SQRT = '\u221A'
         val PI = '\u03C0'
 
         private val CHARS = object : HashMap<Char, AnimateableChar>() {
             init {
+                put(' ', makeNull(2f))
                 put('0', make0())
                 put('1', make1())
                 put('2', make2())
@@ -217,6 +219,7 @@ open class AnimateableChar {
                 put('+', makePlus())
                 put('-', makeMinus())
                 put(TIMES, makeTimes())
+                put(DIVISION, makeSlash())
                 put('/', makeSlash())
                 put('^', makePow())
                 put('(', makeParenOpen())
@@ -247,18 +250,18 @@ open class AnimateableChar {
             }
         }
 
-        private fun makeNull(): AnimateableChar {
+        private fun makeNull(width: Float): AnimateableChar {
             val coords = FloatList()
             for (i in 0..N_VERTS * 3 - 1) {
                 coords.add(0f)
             }
-            return AnimateableChar("null", coords, 0f)
+            return AnimateableChar("null", coords, width)
         }
 
         private fun make0(): AnimateableChar {
             val coords = FloatList()
             sweep(coords, 0f, 0f, 1f, -90.0, 360.0, N_VERTS)
-            return AnimateableChar("0", coords, 2.3f)
+            return AnimateableChar("0", coords, 2.2f)
         }
 
         private fun make1(): AnimateableChar {
@@ -267,7 +270,7 @@ open class AnimateableChar {
             line(coords, .2f, -1f, .2f, 1f, N_VERTS / 3)
             line(coords, .2f, 1f, -.2f, 1f, N_VERTS / 3)
             line(coords, -.2f, 1f, -.2f, -1f, N_VERTS / 6)
-            return AnimateableChar("1", coords, .85f)
+            return AnimateableChar("1", coords, 2.2f)
         }
 
         private fun make2(): AnimateableChar {
@@ -278,7 +281,7 @@ open class AnimateableChar {
             sweep(coords, -0.12f, 0.48f, .52f, -35.0, 190.0, N_VERTS / 2 - 9)
             sweep(coords, 0.08f, 0.28f, .52f, 155.0, -190.0, N_VERTS / 2 - 9)
             line(coords, -.4f, -1f, -0f, -1f, 4)
-            return AnimateableChar("2", coords, 1.65f)
+            return AnimateableChar("2", coords, 2.2f)
         }
 
         private fun make3(): AnimateableChar {
@@ -290,7 +293,7 @@ open class AnimateableChar {
             coords.add(coords.get(0))
             coords.add(coords.get(1))
             coords.add(coords.get(2))
-            return AnimateableChar("3", coords, 1.55f)
+            return AnimateableChar("3", coords, 2.2f)
         }
 
         private fun make4(): AnimateableChar {
@@ -304,7 +307,7 @@ open class AnimateableChar {
             coords.add(coords.get(0))
             coords.add(coords.get(1))
             coords.add(coords.get(2))
-            return AnimateableChar("4", coords, 1.65f)
+            return AnimateableChar("4", coords, 2.2f)
         }
 
         private fun make5(): AnimateableChar {
@@ -316,7 +319,7 @@ open class AnimateableChar {
             coords.add(coords.get(0))
             coords.add(coords.get(1))
             coords.add(coords.get(2))
-            return AnimateableChar("5", coords, 1.65f)
+            return AnimateableChar("5", coords, 2.2f)
         }
 
         private fun make6(): AnimateableChar {
@@ -327,7 +330,7 @@ open class AnimateableChar {
             coords.add(coords.get(0))
             coords.add(coords.get(1))
             coords.add(coords.get(2))
-            return AnimateableChar("6", coords, 1.75f)
+            return AnimateableChar("6", coords, 2.2f)
         }
 
         private fun make7(): AnimateableChar {
@@ -339,7 +342,7 @@ open class AnimateableChar {
             coords.add(coords.get(0))
             coords.add(coords.get(1))
             coords.add(coords.get(2))
-            return AnimateableChar("7", coords, 1.65f)
+            return AnimateableChar("7", coords, 2.2f)
         }
 
         private fun make8(): AnimateableChar {
@@ -349,7 +352,7 @@ open class AnimateableChar {
             coords.add(coords.get(0))
             coords.add(coords.get(1))
             coords.add(coords.get(2))
-            return AnimateableChar("8", coords, 1.63f)
+            return AnimateableChar("8", coords, 2.2f)
         }
 
         private fun make9(): AnimateableChar {
@@ -360,13 +363,13 @@ open class AnimateableChar {
             coords.add(coords.get(0))
             coords.add(coords.get(1))
             coords.add(coords.get(2))
-            return AnimateableChar("9", coords, 1.75f)
+            return AnimateableChar("9", coords, 2.2f)
         }
 
         private fun makeComma(): AnimateableChar {
             val coords = FloatList()
-            line(coords, -.1f, -.9f, -.1f, -1f, 2)
-            line(coords, -.1f, -1f, .05f, -1.2f, 2)
+            line(coords, 0f, -.9f, 0f, -1f, 2)
+            line(coords, 0f, -1f, .15f, -1.2f, 2)
             return AnimateableChar(",", coords, 0f)
         }
 

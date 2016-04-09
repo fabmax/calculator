@@ -386,7 +386,7 @@ class ParallaxHelper(context: Context) : SensorEventListener {
 
     companion object {
 
-        private val TAG = "DeviceRotation"
+        private val TAG = "ParallaxHelper"
 
         val NO_ROT_AVAILABLE = 0
         val GYRO_AVAILABLE = 1

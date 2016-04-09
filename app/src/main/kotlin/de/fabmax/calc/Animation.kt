@@ -8,67 +8,78 @@ import de.fabmax.lightgl.util.GlMath
  */
 open class Animation<T>(start: T, end: T, value: T, mix: (f: Float, a: T, b: T, value: T) -> T) {
 
-    private val mixFun = mix
+    private val mMixFun = mix
 
-    var start: T = start
-        private set
-    var end: T = end
-        private set
-    var value: T = value
+    protected var mStart: T = start
+    protected var mEnd: T = end
+    protected var mValue: T = value
+
+    private var mStartT = 0L
+    private var mDurationT = 0f
+    private var mSmooth = false
+
+    var isDone = true
         private set
 
-    private var startT = 0L
-    private var durationT = 0f
-    private var smooth = false
-    val isDone: Boolean
-        get() { return (System.currentTimeMillis() - startT) / 1000f > durationT }
+    var whenDone: (() -> Unit)? = null
 
-    fun reverse(): Animation<T> {
-        val tmp = start
-        start = end
-        end = tmp
+    open fun reverse(): Animation<T> {
+        val start = mStart
+        val end = mEnd
+        set(end, start)
         return this
     }
 
-    fun start(start: T, end: T): Animation<T> {
-        this.start = start
-        this.end = end
+    open fun set(start: T, end: T): Animation<T> {
+        this.mStart = start
+        this.mEnd = end
         mix(0f)
         return this
     }
 
-    fun change(end: T): Animation<T> {
-        this.start = this.value
-        this.end = end
+    open fun change(end: T): Animation<T> {
+        this.mStart = this.mValue
+        this.mEnd = end
         return this
     }
 
-    fun overTime(duration: Float): Animation<T> {
-        return overTime(duration, false)
+    fun start(duration: Float): Animation<T> {
+        return start(duration, false)
     }
 
-    fun overTime(duration: Float, smooth: Boolean): Animation<T> {
-        this.smooth = smooth
-        durationT = duration
-        startT = System.currentTimeMillis()
+    fun start(duration: Float, smooth: Boolean): Animation<T> {
+        this.mSmooth = smooth
+        mDurationT = duration
+        mStartT = System.currentTimeMillis()
+        isDone = false
         return this
     }
 
     fun animate(): T {
-        val t = System.currentTimeMillis()
-        val secs = (t - startT).toFloat() / 1000.0f
+        if (!isDone) {
+            val t = System.currentTimeMillis()
+            val secs = (t - mStartT).toFloat() / 1000.0f
 
-        var p = GlMath.clamp(secs / durationT, 0f, 1f)
-        if (smooth) {
-            p = (1f - Math.cos(p * Math.PI).toFloat()) / 2f
+            var p = 1f;
+            if (mDurationT > 0.001f) {
+                p = GlMath.clamp(secs / mDurationT, 0f, 1f)
+            }
+            if (mSmooth) {
+                p = (1f - Math.cos(p * Math.PI).toFloat()) / 2f
+            }
+
+            mix(p)
+            if (secs >= mDurationT) {
+                isDone = true
+                whenDone?.invoke()
+            }
         }
-        return mix(p)
+        return mValue
     }
 
-    private fun mix(p: Float): T {
+    protected fun mix(p: Float) {
         val f = GlMath.clamp(p, 0f, 1f)
-        value = mixFun(f, start, end, value)
-        return value
+        mValue = mMixFun(f, mStart, mEnd, mValue)
     }
 
 }
@@ -80,15 +91,37 @@ class Vec3fAnimation : Animation<Vec3f>(Vec3f(), Vec3f(), Vec3f(), { f, a, b, v 
     v.z = a.z * (1-f) + b.z * f
     v
 }) {
-    fun start(startX: Float, startY: Float, startZ: Float, endX: Float, endY: Float, endZ: Float):
+    fun set(startX: Float, startY: Float, startZ: Float, endX: Float, endY: Float, endZ: Float):
             Vec3fAnimation {
-        start.set(startX, startY, startZ)
-        end.set(endX, endY, endZ)
+        mStart.set(startX, startY, startZ)
+        mEnd.set(endX, endY, endZ)
+        mix(0f)
+        return this
+    }
+
+    override fun set(start: Vec3f, end: Vec3f): Animation<Vec3f> {
+        mStart.set(start)
+        mEnd.set(end)
+        mix(0f)
         return this
     }
 
     fun change(endX: Float, endY: Float, endZ: Float): Vec3fAnimation {
-        end.set(endX, endY, endZ)
+        mStart.set(mValue)
+        mEnd.set(endX, endY, endZ)
+        return this
+    }
+
+    override fun change(end: Vec3f): Animation<Vec3f> {
+        mStart.set(mValue)
+        mEnd.set(end)
+        return this
+    }
+
+    override fun reverse(): Animation<Vec3f> {
+        mValue.set(mEnd)
+        mEnd.set(mStart)
+        mStart.set(mValue)
         return this
     }
 }
@@ -97,6 +130,12 @@ class Vec3f {
     var x = 0f
     var y = 0f
     var z = 0f
+
+    fun set(v: Vec3f) {
+        x = v.x
+        y = v.y
+        z = v.z
+    }
 
     fun set(x: Float, y: Float, z: Float) {
         this.x = x;

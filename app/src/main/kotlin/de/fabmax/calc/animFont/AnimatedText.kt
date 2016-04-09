@@ -18,6 +18,8 @@ class AnimatedText(maxChars: Int) {
 
     private val dotChar = AnimateableChar.getChar('.')
 
+    private var mText = "";
+
     init {
         start = Array(maxChars, { i -> AnimateableChar.NULL_CHAR })
         dest = Array(maxChars, { i -> AnimateableChar.NULL_CHAR })
@@ -26,42 +28,47 @@ class AnimatedText(maxChars: Int) {
         dots = BooleanArray(maxChars)
     }
 
-    fun setText(text: String) {
-        var s = text
-        s = s.replace(',', '.')
+    var text: String
+        get() = mText
+        set(value) {
+            if (value == mText) {
+                return
+            }
+            mText = value
+            var s = value.replace(',', '.')
 
-        for (i in chars.indices) {
-            dots[i] = false
-        }
+            for (i in chars.indices) {
+                dots[i] = false
+            }
 
-        var i = 0
-        var j = 0
-        while (i < chars.size) {
-            start[i] = dest[i]
-            if (j < s.length) {
-                val c = s[j]
-                if (c == '.') {
-                    dots[i] = true
-                    i--
+            var i = 0
+            var j = 0
+            while (i < chars.size) {
+                if (j < s.length) {
+                    val c = s[j]
+                    if (c == '.') {
+                        dots[i] = true
+                        i--
+                    } else {
+                        val cd = AnimateableChar.getChar(c)
+                        if (cd !== dest[i]) {
+                            start[i] = dest[i]
+                            dest[i] = cd
+                            animState[i].activate()
+                            animState[i].blend = AnimationState.BLEND_TIME
+                        }
+                    }
                 } else {
-                    val cd = AnimateableChar.getChar(c)
-                    if (cd !== dest[i]) {
-                        dest[i] = cd
+                    dest[i] = AnimateableChar.NULL_CHAR
+                    if (start[i] != AnimateableChar.NULL_CHAR) {
                         animState[i].activate()
                         animState[i].blend = AnimationState.BLEND_TIME
                     }
                 }
-            } else {
-                dest[i] = AnimateableChar.NULL_CHAR
-                if (start[i] != AnimateableChar.NULL_CHAR) {
-                    animState[i].activate()
-                    animState[i].blend = AnimationState.BLEND_TIME
-                }
+                i++
+                j++
             }
-            i++
-            j++
         }
-    }
 
     fun animate(dT: Float) {
         for (i in chars.indices) {

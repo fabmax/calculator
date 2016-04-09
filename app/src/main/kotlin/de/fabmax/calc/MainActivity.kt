@@ -80,8 +80,10 @@ class MainActivity : LightGlActivity() {
         val d = ((height * 0.5) / Math.tan(Math.toRadians(fovy / 2.0))).toFloat();
 
         cam.setPosition(0.0f, 0.0f, -d)
-        mCamPos.start(d*0.45f, -d*0.6f, -d*0.75f, 0.0f, 0.0f, -d).overTime(0f, true)
-        mCamLookAt.start(width/20f, -height/20f, 0f, 0f, 0f, 0f).overTime(0f, true)
+        mCamPos.set(0.0f, 0.0f, -d, d*0.45f, -d*0.6f, -d*0.75f)
+        mCamPos.whenDone = { -> mCamPos.reverse() }
+        mCamLookAt.set(0f, 0f, 0f, width/20f, -height/20f, 0f)
+        mCamLookAt.whenDone = { -> mCamLookAt.reverse() }
 
         cam.setClipRange(100.0f, d * 2.0f - 200.0f)
         cam.setUpDirection(0.0f, -1.0f, 0.0f)
@@ -140,8 +142,8 @@ class MainActivity : LightGlActivity() {
     }
 
     fun toggleCamera() {
-        mCamPos.reverse().overTime(0.25f, true)
-        mCamLookAt.reverse().overTime(0.25f, true)
+        mCamPos.start(0.25f, true)
+        mCamLookAt.start(0.25f, true)
         m3rdPerson = !m3rdPerson
     }
 
@@ -178,6 +180,7 @@ class MainActivity : LightGlActivity() {
 
             painter.pushTransform()
             painter.translate(layout.x, layout.y, layout.z)
+
             layout.paint(painter)
             painter.popTransform()
         }
