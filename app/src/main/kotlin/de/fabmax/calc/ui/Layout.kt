@@ -22,6 +22,21 @@ class Layout(context: Context) : UiElement<LayoutConfig>(LayoutConfig(), context
         children.add(child)
     }
 
+    fun findById(id: String): UiElement<*>? {
+        for (i in children.indices) {
+            val c = children[i]
+            if (c.id == id) {
+                return c
+            } else if (c is Layout) {
+                val r = c.findById(id)
+                if (r != null) {
+                    return r
+                }
+            }
+        }
+        return null
+    }
+
     override fun doLayout(orientation: Int, parentBounds: BoundingBox, ctx: Context):
             BoundingBox {
         val bounds = super.doLayout(orientation, parentBounds, ctx)
@@ -39,8 +54,12 @@ class Layout(context: Context) : UiElement<LayoutConfig>(LayoutConfig(), context
     }
 
     override fun paint(painter: Painter) {
+        // todo: Collections.sort is quite heap intensive...
         Collections.sort(children, childComparator)
-        for (elem in children) {
+
+        // using i in IntRange saves an Iterator allocation
+        for (i in children.indices) {
+            val elem = children[i]
             painter.pushTransform()
             painter.translate(elem.x, elem.y, elem.z)
 

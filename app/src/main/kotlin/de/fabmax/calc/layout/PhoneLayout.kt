@@ -22,7 +22,7 @@ fun phoneLayout(activity: MainActivity): Layout {
     val chars = CharMap(" 0123456789.=+-/sincotaer()^vlgCLRDELw" + CalcPanel.TIMES +
             CalcPanel.DIVISION + CalcPanel.PI + CalcPanel.SQRT)
 
-    val fontCfg = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(28f, activity))
+    val fontCfgNums = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(32f, activity))
     val fontCfgSmall = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(18f, activity))
     val fontCfgLarge = GlFont.FontConfig(activity.assets, "Roboto-Thin.ttf", chars, dp(44f, activity))
 
@@ -50,13 +50,19 @@ fun phoneLayout(activity: MainActivity): Layout {
             button {
                 init {
                     color = darkGray
-                    fontConfig = fontCfg
+                    fontConfig = fontCfgNums
                     fontColor = lightGray
                     text = texts[i]
                     onClickListener = { -> calcPanel.buttonPressed(text) }
                 }
-                port { bounds(rw(1 / 4f * (i % 3)), rh(1 / 4f + (i / 3) * 0.15f), rw(1 / 4f), rh(0.15f)) }
-                land { bounds(rw(1 / 8f * (i % 3)), rh(0.3f + (i / 3) * 0.175f), rw(1 / 8f), rh(0.175f)) }
+                port {
+                    textSize = 1f
+                    bounds(rw(1 / 4f * (i % 3)), rh(1 / 4f + (i / 3) * 0.15f), rw(1 / 4f), rh(0.15f))
+                }
+                land {
+                    textSize = .8f
+                    bounds(rw(1 / 8f * (i % 3)), rh(0.3f + (i / 3) * 0.175f), rw(1 / 8f), rh(0.175f))
+                }
             }
         }
 
@@ -88,10 +94,9 @@ fun phoneLayout(activity: MainActivity): Layout {
                     fontConfig = fontCfgSmall
                     fontColor = darkGray
                     text = texts[i]
-                    if (text == "view") {
-                        onClickListener = { -> activity.toggleCamera() }
-                    } else {
-                        onClickListener = { -> calcPanel.buttonPressed(text) }
+                    when (text) {
+                        "view" -> onClickListener = { -> activity.toggleCamera() }
+                        else -> onClickListener = { -> calcPanel.buttonPressed(text) }
                     }
 
                     val interpolator = ParabolicBoundsInterpolator(layoutConfig)
@@ -114,11 +119,15 @@ fun phoneLayout(activity: MainActivity): Layout {
         for (i in 0..11) {
             button {
                 init {
+                    id = texts[i]
                     color = cyan
                     fontConfig = fontCfgSmall
                     fontColor = darkGray
                     text = texts[i]
-                    onClickListener = { -> calcPanel.buttonPressed(text) }
+                    when (text) {
+                        "inv" -> onClickListener = { -> activity.flipFunctions() }
+                        else -> onClickListener = { -> calcPanel.buttonPressed(text) }
+                    }
                 }
                 port {
                     bounds(rw(1.4f + 1 / 8f * (i % 3) + i / 3 * .25f), rh(1 / 4f + (i / 3) * 0.15f),

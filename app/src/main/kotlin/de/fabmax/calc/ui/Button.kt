@@ -12,7 +12,7 @@ import de.fabmax.lightgl.util.Painter
 /**
  * A clickable button
  */
-class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
+class Button(context: Context) : Panel<ButtonConfig>(ButtonConfig(), context) {
 
     var fontColor: Color = Color.BLACK
     var fontConfig: GlFont.FontConfig? = null
@@ -27,11 +27,15 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
 
     private val mPressAnimAlpha = FloatAnimation()
     private val mPressAnimSize = FloatAnimation()
-
-//    private var ang = 0f
+    private val mFlipAnim = FloatAnimation()
 
     override fun paint(painter: Painter) {
         val c = layoutConfig.color
+
+        val flipAng = mFlipAnim.animate()
+        if (flipAng > .001f) {
+            setupFlip(painter, flipAng, c)
+        }
 
         // increase brightness depending on z
         var b = 1 + GlMath.clamp(z / dp(800f, context), -.2f, .2f);
@@ -47,28 +51,53 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
             painter.translate(0f, 0f, dp(16f, context))
         }
 
-        if (painter.glContext.state.isPrePass) {
-            // on shadow render pass, quit after background planes are drawn
-            return
-        }
+        if (!painter.glContext.state.isPrePass) {
+            // text is only drawn if not in depth pass
+            if (!text.isEmpty()) {
+                if (fontConfig != null) {
+                    mFont = GlFont.createFont(painter.glContext, fontConfig, fontColor)
+                    fontConfig = null
+                }
 
-        if (!text.isEmpty()) {
-            if (fontConfig != null) {
-                mFont = GlFont.createFont(painter.glContext, fontConfig, fontColor)
-                fontConfig = null
-            }
-            if (mFont != null) {
+                mFont?.setScale(layoutConfig.textSize)
                 painter.font = mFont
+                val x = (width - painter.font.getStringWidth(text)) / 2.0f
+                val y = (height + painter.font.fontSize * 0.65f) / 2.0f
+                painter.drawString(x, y, text)
             }
 
-            val x = (width - painter.font.getStringWidth(text)) / 2.0f
-            val y = (height + painter.font.fontSize * 0.65f) / 2.0f
-            painter.drawString(x, y, text)
         }
 
-        if (pressed || !mPressAnimAlpha.isDone) {
+        if (flipAng > .001f) {
+            painter.commit()
+            painter.glContext.state.popModelMatrix()
+        }
+
+        if (!painter.glContext.state.isPrePass && (pressed || !mPressAnimAlpha.isDone)) {
             painter.setColor(Color.YELLOW, mPressAnimAlpha.animate())
             painter.fillCircle(mPressX, mPressY, mPressAnimSize.animate())
+        }
+    }
+
+    private fun setupFlip(painter: Painter, flipAng: Float, color: FloatArray) {
+        painter.glContext.state.pushModelMatrix()
+        Matrix.translateM(painter.glContext.state.modelMatrix, 0, width/2, 0f, 0f)
+        Matrix.rotateM(painter.glContext.state.modelMatrix, 0, flipAng, 0f, 1f, 0f)
+        Matrix.translateM(painter.glContext.state.modelMatrix, 0, -width/2, 0f, 0f)
+        painter.glContext.state.matrixUpdate()
+
+        val cr = .5f + Math.abs(Math.cos(Math.toRadians(flipAng.toDouble())).toFloat()) / 2
+        color[0] *= cr
+        color[1] *= cr
+        color[2] *= cr
+    }
+
+    fun flipText(newText: String) {
+        mFlipAnim.set(0f, 90f).start(.15f)
+        mFlipAnim.whenDone = { ->
+            text = newText
+            mFlipAnim.set(270f, 360f).start(.15f)
+            mFlipAnim.whenDone = { -> mFlipAnim.set(0f, 0f) }
         }
     }
 
@@ -94,8 +123,6 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
         // elevate button
         if (!mElevated) {
             mElevated = true
-            //layoutConfig.getLayout(Orientation.PORTRAIT).bounds.maxZ += 16f
-            //layoutConfig.getLayout(Orientation.LANDSCAPE).bounds.maxZ += 16f
             layoutConfig.translate(Orientation.ALL, 0f, 0f, dp(16f, context))
         }
     }
@@ -110,14 +137,47 @@ class Button(context: Context) : Panel<PanelConfig>(PanelConfig(), context) {
         // de-elevate button
         if (mElevated) {
             mElevated = false
-            //layoutConfig.getLayout(Orientation.PORTRAIT).bounds.maxZ -= 16f
-            //layoutConfig.getLayout(Orientation.LANDSCAPE).bounds.maxZ -= 16f
             layoutConfig.translate(Orientation.ALL, 0f, 0f, dp(-16f, context))
         }
     }
 }
 
+open class ButtonConfig : PanelConfig() {
+    private val props = Array(Orientation.ALL, { i -> ButtonProperties() })
+
+    var textSize = 1f
+
+    override fun mixConfigs(portLandMix: Float) {
+        super.mixConfigs(portLandMix)
+
+        textSize = props[Orientation.PORTRAIT].textSize * portLandMix +
+                props[Orientation.LANDSCAPE].textSize * (1f - portLandMix)
+    }
+
+    fun getButtonProperties(orientation: Int): ButtonProperties {
+        return props[orientation]
+    }
+
+    fun setTextSize(orientation: Int, size: Float) {
+        if (orientation >= 0 && orientation < props.size) {
+            props[orientation].textSize = size
+        } else {
+            props.forEach { p -> p.textSize = size }
+        }
+    }
+}
+
+class ButtonProperties {
+    var textSize = 1f
+}
+
 class ButtonBuilder(context: Context) : AbstractPanelBuilder<Button>(context) {
+    var textSize: Float
+        get() = element.layoutConfig.getButtonProperties(orientation).textSize
+        set(value) {
+            element.layoutConfig.setTextSize(orientation, value)
+        }
+
     override fun create(): Button {
         return Button(context)
     }

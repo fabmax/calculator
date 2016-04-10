@@ -203,7 +203,7 @@ open class AnimateableChar {
 
         private val CHARS = object : HashMap<Char, AnimateableChar>() {
             init {
-                put(' ', makeNull(2f))
+                put(' ', makeNull(1f))
                 put('0', make0())
                 put('1', make1())
                 put('2', make2())

@@ -37,6 +37,8 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
     var fontColor: Color = Color.BLACK
     var fontConfig: GlFont.FontConfig? = null
     private var mFont: GlFont? = null
+    private var mErrorFont: GlFont? = null
+    private val mErrorColor = Color("#EA004A")
 
     var expr: String = ""
         private set
@@ -49,6 +51,7 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
 
     private val mResultAnimation = FloatAnimation()
     private val mClearAnimation = FloatAnimation()
+    private val mErrorAnimation = FloatAnimation()
 
     private val mEvaluator = SqrtEnabledEvaluator.getInstance()
     private val mAnimText1 = AnimatedText(32)
@@ -79,6 +82,7 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
 
         if (fontConfig != null) {
             mFont = GlFont.createFont(painter.glContext, fontConfig, fontColor)
+            mErrorFont = GlFont.createFont(painter.glContext, fontConfig, mErrorColor)
             fontConfig = null
         }
 
@@ -90,6 +94,13 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
         } else {
             mClearAnimation.animate()
             drawIoCountdown(painter)
+        }
+
+        val errorA = mErrorAnimation.animate()
+        if (errorA > .001f) {
+            painter.commit()
+            painter.setColor(mErrorColor, errorA)
+            painter.fillRect(0.0f, 0.0f, width, height)
         }
     }
 
@@ -111,8 +122,13 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
         painter.drawString(x1, y1 + dy, expr)
         painter.setAlpha(1f)
 
-        mFont?.setScale(layoutConfig.textSize * (.8f + .2f * resultA) * clearA)
-        val x2 = (width - painter.font.getStringWidth(result) - margin)
+        var font = mFont!!
+        if (result == "error") {
+            font = mErrorFont!!
+            painter.font = font
+        }
+        font.setScale(layoutConfig.textSize * (.8f + .2f * resultA) * clearA)
+        val x2 = (width - font.getStringWidth(result) - margin)
         painter.drawString(x2, y2 + dy, result)
     }
 
@@ -134,23 +150,23 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
         if (!mClearing) {
             var t = (T_IO - System.currentTimeMillis()) / 1000
             if (t >= 0) {
-                mAnimText2.text = String.format("%02d,%02d,%02d,%02d",
+                mAnimText2.text = String.format("%02d, %02d, %02d, %02d",
                         t / 86400, (t % 86400) / 3600, (t % 3600) / 60, t % 60)
             } else {
                 t = -t
-                mAnimText2.text = String.format("-%02d,%02d,%02d,%02d",
+                mAnimText2.text = String.format("-%02d, %02d, %02d, %02d",
                         t / 86400, (t % 86400) / 3600, (t % 3600) / 60, t % 60)
             }
             mAnimText1.text = "1/0 2016"
         }
 
         val margin = dp(32f, context)
-        val textSz = dp(34f * layoutConfig.textSize, context)
+        val textSz = dp(30f * layoutConfig.textSize, context)
 
         painter.pushTransform()
-        painter.translate(width - margin, height/2 - textSz * 0.75f, 0f)
+        painter.translate(width - margin, height/2 - textSz * 0.9f, 0f)
         mAnimText1.draw(painter, textSz, width)
-        painter.translate(0f, textSz * 1.5f, 0f)
+        painter.translate(0f, textSz * 1.8f, 0f)
         mAnimText2.draw(painter, textSz, width)
         painter.popTransform()
     }
@@ -221,6 +237,11 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
                     mIoMode = true
                 } else {
                     result = "error"
+                    mErrorAnimation.set(0f, 1f).start(.05f)
+                    mErrorAnimation.whenDone = { ->
+                        mErrorAnimation.reverse().start(.4f)
+                        mErrorAnimation.whenDone = null
+                    }
                 }
             } else {
                 result = ""

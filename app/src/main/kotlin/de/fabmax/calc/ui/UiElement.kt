@@ -12,6 +12,7 @@ import de.fabmax.lightgl.util.Painter
  */
 abstract class UiElement<T: LayoutConfig>(config: T, context: Context) {
 
+    var id: String? = null
     val context = context
     val layoutConfig = config
 

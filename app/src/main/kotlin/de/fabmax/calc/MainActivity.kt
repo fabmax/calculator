@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import de.fabmax.calc.layout.phoneLayout
+import de.fabmax.calc.ui.Button
 import de.fabmax.calc.ui.Layout
 import de.fabmax.calc.ui.Orientation
 import de.fabmax.lightgl.*
@@ -98,7 +99,7 @@ class MainActivity : LightGlActivity() {
         mContentGrp.scale(-1f, -1f, -1f)
 
         // add a directional light
-        val light = Light.createDirectionalLight(-.4f, .5f, -1f, 0.7f, 0.7f, 0.7f)
+        val light = Light.createDirectionalLight(-.4f, .5f, -1f, .7f, .7f, .7f)
         glContext.engine.addLight(light)
 
         // enable shadow rendering
@@ -145,6 +146,25 @@ class MainActivity : LightGlActivity() {
         mCamPos.start(0.25f, true)
         mCamLookAt.start(0.25f, true)
         m3rdPerson = !m3rdPerson
+    }
+
+    fun flipFunctions() {
+        val layout = mContent?.layout
+        if (layout != null) {
+            val sin = layout.findById("sin") as Button
+            val cos = layout.findById("cos") as Button
+            val tan = layout.findById("tan") as Button
+
+            if (sin.text == "sin") {
+                sin.flipText("asin")
+                cos.flipText("acos")
+                tan.flipText("atan")
+            } else {
+                sin.flipText("sin")
+                cos.flipText("cos")
+                tan.flipText("tan")
+            }
+        }
     }
 
     private fun setContentSize(width: Int, height: Int) {
