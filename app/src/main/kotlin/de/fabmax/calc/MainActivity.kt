@@ -17,7 +17,7 @@ import de.fabmax.lightgl.util.Painter
 
 class MainActivity : LightGlActivity() {
 
-    private val mRotationSens = AccelSensor()
+    private val mRotationSens = RotationSensor()
     private var mParallax: ParallaxHelper? = null
     private var mContentGrp = TransformGroup()
     private var mContent: Content? = null

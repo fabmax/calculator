@@ -14,7 +14,7 @@ import de.fabmax.lightgl.Camera
 /**
  * Acceleration sensor handler for detecting screen rotations
  */
-class AccelSensor : SensorEventListener {
+class RotationSensor : SensorEventListener {
 
     private var mCam: Camera? = null
     private val mFilter = Filter()
@@ -59,9 +59,13 @@ class AccelSensor : SensorEventListener {
             true -> ROT_THRESH
             else -> ROT_THRESH / 4
         }
+        val zThresh = when(mSnappedIn) {
+            true -> MAG_THRESH_Z_SNAPPED
+            else -> MAG_THRESH_Z
+        }
 
         var a = (Math.atan2(x.toDouble(), y.toDouble())).toFloat()
-        if (m > MAG_THRESH && z < MAG_THRESH_Z) {
+        if (m > MAG_THRESH && z < zThresh) {
             // if magnitude is large enough, determine screen orientation from acceleration vector
             if (Math.abs(a) < thresh) {
                 a = 0f
@@ -133,6 +137,7 @@ class AccelSensor : SensorEventListener {
         private val PI_4 = PI / 4
         private val ROT_THRESH = Math.toRadians(30.0).toFloat()
         private val MAG_THRESH = 5.0f
-        private val MAG_THRESH_Z = 7.0f
+        private val MAG_THRESH_Z = 8.0f
+        private val MAG_THRESH_Z_SNAPPED = 5.0f
     }
 }
