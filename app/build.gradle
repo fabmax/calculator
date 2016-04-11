@@ -9,8 +9,8 @@ android {
         applicationId "de.fabmax.calc"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 201604101
-        versionName "1.0"
+        versionCode 201604111
+        versionName "1.01"
     }
     android {
         lintOptions {
