@@ -1,30 +1,34 @@
 package de.fabmax.calc.ui
 
 import android.content.Context
+import java.util.*
 
 /**
- * Size specification for layouts. Size specifications can be relative or absolute.
+ * Various relative and absolute size specification for layouts. dp size specs correspond to the
+ * usual android dp units. However, since usually a perspective camera is used, dp units are only
+ * pixel perfect at z = 0.
  */
 abstract class SizeSpec {
 
-    private var minusSz: SizeSpec? = null
-    private var plusSz: SizeSpec? = null
+    private val minusSz = ArrayList<SizeSpec>()
+    private var plusSz = ArrayList<SizeSpec>()
 
     abstract fun convert(parentWidth: Float, parentHeight: Float, ctx: Context): Float
 
     fun toPx(parentWidth: Float, parentHeight: Float, ctx: Context): Float {
-        return convert(parentWidth, parentHeight, ctx) -
-                (minusSz?.toPx(parentWidth, parentHeight, ctx) ?: 0f) +
-                (plusSz?.toPx(parentWidth, parentHeight, ctx) ?: 0f)
+        var px = convert(parentWidth, parentHeight, ctx)
+        minusSz.forEach { sz -> px -= sz.toPx(parentWidth, parentHeight, ctx) }
+        plusSz.forEach { sz -> px += sz.toPx(parentWidth, parentHeight, ctx) }
+        return px
     }
 
     operator fun minus(other: SizeSpec): SizeSpec {
-        minusSz = other
+        minusSz.add(other)
         return this
     }
 
     operator fun plus(other: SizeSpec): SizeSpec {
-        plusSz = other
+        plusSz.add(other)
         return this
     }
 }

@@ -8,6 +8,9 @@ import de.fabmax.lightgl.util.Painter
  * A panel with a single color background.
  */
 open class Panel<T: PanelConfig>(config: T, context: Context) : UiElement<T>(config, context) {
+    /**
+     * Draws a rectangular shape with the current size and color of this panel
+     */
     override fun paint(painter: Painter) {
         val color = layoutConfig.color
         painter.setColor(color)
@@ -15,11 +18,17 @@ open class Panel<T: PanelConfig>(config: T, context: Context) : UiElement<T>(con
     }
 }
 
+/**
+ * Panel specific LayoutConfiguration extended with a orientation dependent color.
+ */
 open class PanelConfig : LayoutConfig() {
     private val props = Array(Orientation.ALL, { i -> PanelProperties() })
 
     val color = FloatArray(4)
 
+    /**
+     * Interpolates panel size and color.
+     */
     override fun mixConfigs(portLandMix: Float) {
         super.mixConfigs(portLandMix)
 
@@ -35,6 +44,10 @@ open class PanelConfig : LayoutConfig() {
         return props[orientation]
     }
 
+    /**
+     * Sets the color for the given orientation. If orientation is Orientation.ALL, color is set
+     * for all orientations.
+     */
     fun setColor(orientation: Int, color: Color) {
         if (orientation >= 0 && orientation < props.size) {
             props[orientation].color = color
@@ -48,7 +61,13 @@ class PanelProperties {
     var color = Color.LIGHT_GRAY
 }
 
+/**
+ * Base builder for panels, offers the color property.
+ */
 abstract class AbstractPanelBuilder<T: Panel<*>>(context: Context) : UiElementBuilder<T>(context) {
+    /**
+     * Panel color for the current orientation.
+     */
     var color: Color
         get() = element.layoutConfig.getPanelProperties(orientation).color
         set(value) {

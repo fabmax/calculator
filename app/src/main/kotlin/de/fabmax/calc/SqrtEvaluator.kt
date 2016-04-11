@@ -1,4 +1,4 @@
-package de.fabmax.calc.ui
+package de.fabmax.calc
 
 import com.fathzer.soft.javaluator.Constant
 import com.fathzer.soft.javaluator.DoubleEvaluator
@@ -7,8 +7,8 @@ import com.fathzer.soft.javaluator.Parameters
 
 /**
  * A javaluator DoubleEvaluator which supports square roots. Square root is implemented as an
- * operator with the unicode square root sign. Operator was chosen because in contrast to functions
- * operators also work without parenthesis.
+ * operator with the unicode square root sign. Operator was chosen because, in contrast to
+ * functions, operators also work without parenthesis.
  */
 class SqrtEnabledEvaluator private constructor(val params: Parameters) : DoubleEvaluator(params) {
     companion object {
@@ -19,7 +19,7 @@ class SqrtEnabledEvaluator private constructor(val params: Parameters) : DoubleE
 
         fun getInstance(): SqrtEnabledEvaluator {
             if (inst == null) {
-                val params = DoubleEvaluator.getDefaultParameters()
+                val params = getDefaultParameters()
                 params.add(SQRT)
                 params.add(PI)
                 inst = SqrtEnabledEvaluator(params)

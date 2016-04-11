@@ -1,31 +1,33 @@
 package de.fabmax.calc.layout
 
-import android.content.Context
-import de.fabmax.calc.*
+import de.fabmax.calc.MainActivity
 import de.fabmax.calc.ui.*
 import de.fabmax.lightgl.util.CharMap
 import de.fabmax.lightgl.util.Color
 import de.fabmax.lightgl.util.GlFont
 
 /**
- * Phone layout definition
+ * Definition of the calculator phone layout. Quite hacky but it does the trick for this prototype.
  */
 fun phoneLayout(activity: MainActivity): Layout {
+    // Used colors, fixme: take them from R.colors
     val lightGray = Color("#e1e7ea")
     val gray = Color("#78909c")
     val darkGray = Color("#536771")
-    val red = Color("#ef5350")
-    val blue = Color("#5c6bc0")
     val cyan = Color("#8cf2f2")
     val petrol = Color("#26c6da")
 
+    // CharMap is used to generate the font textures. It must contain all string characters
+    // used in the layout (but preferably not more to save texture memory)
     val chars = CharMap(" 0123456789.=+-/sincotaer()^vlgCLRDELw" + CalcPanel.TIMES +
             CalcPanel.DIVISION + CalcPanel.PI + CalcPanel.SQRT)
 
+    // Different font styles used in the layout
     val fontCfgNums = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(32f, activity))
     val fontCfgSmall = GlFont.FontConfig(activity.assets, "Roboto-Light.ttf", chars, dp(18f, activity))
     val fontCfgLarge = GlFont.FontConfig(activity.assets, "Roboto-Thin.ttf", chars, dp(44f, activity))
 
+    // Builder FTW!
     return layout(activity) {
         bounds(rw(-0.5f), rh(-0.5f), rw(1.0f), rh(1.0f))
 
@@ -110,7 +112,9 @@ fun phoneLayout(activity: MainActivity): Layout {
                         color = cyan
                     }
                 }
-                land { bounds(rw(.5f), rh(.3f + i * .175f), dp(8f), rw(1 / 8f), rh(0.175f), dp(0f)) }
+                land {
+                    bounds(rw(.5f), rh(.3f + i * .175f), dp(8f), rw(1 / 8f), rh(0.175f), dp(0f))
+                }
             }
         }
 
@@ -133,7 +137,10 @@ fun phoneLayout(activity: MainActivity): Layout {
                     bounds(rw(1.4f + 1 / 8f * (i % 3) + i / 3 * .25f), rh(1 / 4f + (i / 3) * 0.15f),
                             dp((i / 3 + 1) * -50f), rw(1 / 4f), rh(0.15f), dp(0f))
                 }
-                land { bounds(rw(0.625f + 1 / 8f * (i % 3)), rh(0.3f + (i / 3) * 0.175f), rw(1 / 8f), rh(0.175f)) }
+                land {
+                    bounds(rw(0.625f + 1 / 8f * (i % 3)), rh(0.3f + (i / 3) * 0.175f),
+                            rw(1 / 8f), rh(0.175f))
+                }
             }
         }
     }

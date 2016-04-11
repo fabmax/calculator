@@ -1,56 +1,59 @@
 package de.fabmax.calc.animFont
 
 import android.util.Log
-import java.util.HashMap
-
 import de.fabmax.lightgl.util.*
+import java.util.*
 
+/**
+ * Animateable character in the style of the Google I/O 2015 web countdown. Not all characters are
+ * supported (but all those needed for the math functions).
+ */
 open class AnimateableChar {
 
     val name: String
 
-    protected val path: FloatArray
-    protected val stepLens: FloatArray
+    protected val mPath: FloatArray
+    protected val mStepLens: FloatArray
 
-    protected var isStatic = true
-    private var mesh: MeshData? = null
+    protected var mIsStatic = true
+    private var mMesh: MeshData? = null
 
-    protected var pathLength: Float = 0.toFloat()
+    protected var mPathLength: Float = 0.toFloat()
     open var charAdvance: Float = 0.toFloat()
         protected set
 
-    private val tmpVert = FloatArray(3)
+    private val mTmpVert = FloatArray(3)
 
     protected constructor(name: String, nVerts: Int) {
-        path = FloatArray(nVerts * 3)
-        stepLens = FloatArray(nVerts)
-        pathLength = 0f
+        mPath = FloatArray(nVerts * 3)
+        mStepLens = FloatArray(nVerts)
+        mPathLength = 0f
         charAdvance = 0f
         this.name = name
     }
 
     constructor(name: String, pathDef: FloatList, charWidth: Float) {
-        path = pathDef.asArray()
-        stepLens = FloatArray(path.size / 3)
+        mPath = pathDef.asArray()
+        mStepLens = FloatArray(mPath.size / 3)
         charAdvance = charWidth
         this.name = name
         updatePathLength()
     }
 
     protected fun updatePathLength() {
-        pathLength = 0f
-        var x0 = path[0]
-        var y0 = path[1]
-        var z0 = path[2]
+        mPathLength = 0f
+        var x0 = mPath[0]
+        var y0 = mPath[1]
+        var z0 = mPath[2]
         var i = 3
         var j = 0
-        while (i < path.size) {
-            val x1 = path[i]
-            val y1 = path[i + 1]
-            val z1 = path[i + 2]
+        while (i < mPath.size) {
+            val x1 = mPath[i]
+            val y1 = mPath[i + 1]
+            val z1 = mPath[i + 2]
 
-            stepLens[j] = Math.sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1) + (z0 - z1) * (z0 - z1).toDouble()).toFloat()
-            pathLength += stepLens[j]
+            mStepLens[j] = Math.sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1) + (z0 - z1) * (z0 - z1).toDouble()).toFloat()
+            mPathLength += mStepLens[j]
             x0 = x1
             y0 = y1
             z0 = z1
@@ -60,19 +63,19 @@ open class AnimateableChar {
     }
 
     fun draw(painter: Painter) {
-        if (isStatic && mesh != null && !mesh!!.isEmpty) {
-            painter.drawMeshData(mesh)
+        if (mIsStatic && mMesh != null && !mMesh!!.isEmpty) {
+            painter.drawMeshData(mMesh)
         } else {
-            if (mesh == null) {
+            if (mMesh == null) {
                 painter.commit()
             }
             var i = 0
-            while (i < path.size - 3) {
-                painter.drawLine(path[i], path[i + 1], path[i + 3], path[i + 4])
+            while (i < mPath.size - 3) {
+                painter.drawLine(mPath[i], mPath[i + 1], mPath[i + 3], mPath[i + 4])
                 i += 3
             }
-            if (mesh == null) {
-                mesh = painter.meshBuilder.build()
+            if (mMesh == null) {
+                mMesh = painter.meshBuilder.build()
             }
         }
     }
@@ -93,43 +96,43 @@ open class AnimateableChar {
             }
         }
         var firstSi = secIdx
-        remaining *= pathLength
+        remaining *= mPathLength
 
-        tmpVert[0] = path[0]
-        tmpVert[1] = path[1]
-        tmpVert[2] = path[2]
+        mTmpVert[0] = mPath[0]
+        mTmpVert[1] = mPath[1]
+        mTmpVert[2] = mPath[2]
 
         // draw path by sections with varying colors
         painter.setColor(color)
-        var stepLen = stepLens[0]
+        var stepLen = mStepLens[0]
         //target.addVertex(path[0], path[1], path[2], color)
         var i = 3
-        while (i < path.size) {
+        while (i < mPath.size) {
             if (remaining < stepLen) {
                 // section (color) change
                 color = defaultColor
-                var nextLen = pathLength
+                var nextLen = mPathLength
                 secIdx++
 
                 if (secIdx >= secColors.size && firstSi != -1) {
                     // section overflow (we did not start with the first section)
                     firstSi = -1
                     secIdx = -1
-                    nextLen = (1 - secColors.size * secLen) * pathLength
+                    nextLen = (1 - secColors.size * secLen) * mPathLength
                 } else if (secIdx < secColors.size) {
                     // select next section
                     color = secColors[secIdx]
-                    nextLen = secLen * pathLength
+                    nextLen = secLen * mPathLength
                 }
 
                 // insert a vertex at the exact section end position
-                split(painter, tmpVert, i, remaining / stepLen)
+                split(painter, mTmpVert, i, remaining / stepLen)
                 painter.setColor(color)
 
                 // compute remaining length of this step
-                val dx = path[i] - tmpVert[0]
-                val dy = path[i + 1] - tmpVert[1]
-                val dz = path[i + 2] - tmpVert[2]
+                val dx = mPath[i] - mTmpVert[0]
+                val dy = mPath[i + 1] - mTmpVert[1]
+                val dz = mPath[i + 2] - mTmpVert[2]
                 stepLen = Math.sqrt(dx * dx + dy * dy + dz * dz.toDouble()).toFloat()
 
                 // set next section values
@@ -140,12 +143,12 @@ open class AnimateableChar {
             } else {
                 // extend path with current color
                 //target.extendLine(path[i], path[i + 1], path[i + 2], color)
-                painter.drawLine(tmpVert[0], tmpVert[1], path[i], path[i+1])
-                tmpVert[0] = path[i]
-                tmpVert[1] = path[i + 1]
-                tmpVert[2] = path[i + 2]
+                painter.drawLine(mTmpVert[0], mTmpVert[1], mPath[i], mPath[i+1])
+                mTmpVert[0] = mPath[i]
+                mTmpVert[1] = mPath[i + 1]
+                mTmpVert[2] = mPath[i + 2]
                 remaining -= stepLen
-                stepLen = stepLens[i / 3]
+                stepLen = mStepLens[i / 3]
             }
             i += 3
         }
@@ -161,16 +164,16 @@ open class AnimateableChar {
             target.setPath(other)
             target.setCharWidth(other.charAdvance)
         } else {
-            for (i in path.indices) {
-                trgt.path[i] = path[i] * w + other.path[i] * (1 - w)
+            for (i in mPath.indices) {
+                trgt.mPath[i] = mPath[i] * w + other.mPath[i] * (1 - w)
             }
             target.setCharWidth(charAdvance * w + other.charAdvance * (1 - w))
         }
         trgt.updatePathLength()
     }
 
-    private fun split(painter: Painter, vert: FloatArray, iNext: Int, p: Float) {
-        var p = p
+    private fun split(painter: Painter, vert: FloatArray, iNext: Int, pos: Float) {
+        var p = pos
         if (p < 0 || p > 1) {
             System.err.println(p)
         }
@@ -179,9 +182,9 @@ open class AnimateableChar {
         val x0 = vert[0]
         val y0 = vert[1]
         val z0 = vert[2]
-        val x2 = path[iNext]
-        val y2 = path[iNext + 1]
-        val z2 = path[iNext + 2]
+        val x2 = mPath[iNext]
+        val y2 = mPath[iNext + 1]
+        val z2 = mPath[iNext + 2]
 
         vert[0] = x0 * (1 - p) + x2 * p
         vert[1] = y0 * (1 - p) + y2 * p

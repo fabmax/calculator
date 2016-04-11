@@ -1,11 +1,9 @@
 package de.fabmax.calc.ui
 
-import de.fabmax.calc.ui.LayoutConfig
-import de.fabmax.calc.ui.Orientation
 import de.fabmax.lightgl.BoundingBox
 
 /**
- * BoundingBox interpolation
+ * Interpolator for morphing UI element BoundingBoxes between portrait and landscape configurations.
  */
 abstract class BoundsInterpolator(boundsA: BoundingBox, boundsB: BoundingBox) {
     protected val boundsA = boundsA
@@ -17,10 +15,16 @@ abstract class BoundsInterpolator(boundsA: BoundingBox, boundsB: BoundingBox) {
         bounds.set(boundsA)
     }
 
+    /**
+     * Compute BoundingBox for the given mix value (0 (landscape) .. 1 (portrait))
+     */
     abstract fun update(mix: Float)
 
 }
 
+/**
+ * Interpolates all BoundingBox dimensions strictly linear.
+ */
 open class LinearBoundsInterpolator(boundsA: BoundingBox, boundsB: BoundingBox) :
         BoundsInterpolator(boundsA, boundsB) {
 
@@ -42,6 +46,9 @@ open class LinearBoundsInterpolator(boundsA: BoundingBox, boundsB: BoundingBox) 
 
 }
 
+/**
+ * Interpolates all BoundingBox dimensions linear and adds an optional parabolic component to it.
+ */
 class ParabolicBoundsInterpolator(boundsA: BoundingBox, boundsB: BoundingBox) :
         LinearBoundsInterpolator(boundsA, boundsB) {
 

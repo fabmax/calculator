@@ -9,7 +9,7 @@ android {
         applicationId "de.fabmax.calc"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
+        versionCode 201604101
         versionName "1.0"
     }
     android {
@@ -33,7 +33,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(':LightGL:LightGlLib')
     compile 'com.fathzer:javaluator:3.0.1'
-    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:appcompat-v7:23.3.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 

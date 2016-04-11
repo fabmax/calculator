@@ -2,7 +2,6 @@ package de.fabmax.calc.ui
 
 import android.content.Context
 import android.opengl.Matrix
-import android.util.Log
 import de.fabmax.calc.FloatAnimation
 import de.fabmax.lightgl.util.Color
 import de.fabmax.lightgl.util.GlFont
@@ -10,7 +9,7 @@ import de.fabmax.lightgl.util.GlMath
 import de.fabmax.lightgl.util.Painter
 
 /**
- * A clickable button
+ * A clickable button with a text.
  */
 class Button(context: Context) : Panel<ButtonConfig>(ButtonConfig(), context) {
 
@@ -73,6 +72,7 @@ class Button(context: Context) : Panel<ButtonConfig>(ButtonConfig(), context) {
             painter.glContext.state.popModelMatrix()
         }
 
+        // draw button press indicator if pressed (yellow circle)
         if (!painter.glContext.state.isPrePass && (pressed || !mPressAnimAlpha.isDone)) {
             painter.setColor(Color.YELLOW, mPressAnimAlpha.animate())
             painter.fillCircle(mPressX, mPressY, mPressAnimSize.animate())
@@ -92,6 +92,10 @@ class Button(context: Context) : Panel<ButtonConfig>(ButtonConfig(), context) {
         color[2] *= cr
     }
 
+    /**
+     * Initiates the button flip animation. The button will change its text to the specified one
+     * during flipping.
+     */
     fun flipText(newText: String) {
         mFlipAnim.set(0f, 90f).start(.15f)
         mFlipAnim.whenDone = { ->
@@ -116,7 +120,7 @@ class Button(context: Context) : Panel<ButtonConfig>(ButtonConfig(), context) {
         mPressX = x
         mPressY = y
 
-        // circle animation
+        // fade in circle animation
         mPressAnimSize.set(dp(60f, context), dp(100f, context)).start(0.1f, true)
         mPressAnimAlpha.set(0f, 0.5f).start(0.1f, false)
 
@@ -130,7 +134,7 @@ class Button(context: Context) : Panel<ButtonConfig>(ButtonConfig(), context) {
     override fun onRelease() {
         super.onRelease()
 
-        // circle animation
+        // fade out circle animation
         mPressAnimSize.change(dp(30f, context)).start(0.2f, true)
         mPressAnimAlpha.change(0f).start(0.2f, false)
 
@@ -142,6 +146,9 @@ class Button(context: Context) : Panel<ButtonConfig>(ButtonConfig(), context) {
     }
 }
 
+/**
+ * Button specific layout config. Adds a text size factor.
+ */
 open class ButtonConfig : PanelConfig() {
     private val props = Array(Orientation.ALL, { i -> ButtonProperties() })
 
@@ -172,6 +179,10 @@ class ButtonProperties {
 }
 
 class ButtonBuilder(context: Context) : AbstractPanelBuilder<Button>(context) {
+    /**
+     * Text size factor, which can be used to change the text size during orientation change. If the
+     * factor gets to large, text will appear blurry.
+     */
     var textSize: Float
         get() = element.layoutConfig.getButtonProperties(orientation).textSize
         set(value) {

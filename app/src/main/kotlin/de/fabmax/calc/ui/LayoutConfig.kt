@@ -1,18 +1,14 @@
 package de.fabmax.calc.ui
 
 import android.content.Context
-import android.util.Log
-import de.fabmax.calc.ui.BoundsInterpolator
-import de.fabmax.calc.ui.LinearBoundsInterpolator
 import de.fabmax.lightgl.BoundingBox
 import de.fabmax.lightgl.util.GlMath
 
 /**
- * Layout for different configurations, currently only portrait and landscape are available
+ * Basic layout configuration for all UI elements.
  */
 open class LayoutConfig {
-
-    private val layouts = Array(Orientation.ALL, { i -> LayoutProperties() })
+    private val props = Array(Orientation.ALL, { i -> LayoutProperties() })
 
     var portLandMix: Float = 1f
         private set
@@ -23,25 +19,25 @@ open class LayoutConfig {
 
     init {
         boundsInterpolator = LinearBoundsInterpolator(
-                layouts[Orientation.PORTRAIT].bounds, layouts[Orientation.LANDSCAPE].bounds)
+                props[Orientation.PORTRAIT].bounds, props[Orientation.LANDSCAPE].bounds)
     }
 
     fun getLayout(orientation: Int): LayoutProperties {
-        return layouts[orientation]
+        return props[orientation]
     }
 
     fun setLayoutFun(orientation: Int,
                      layoutFun: LayoutProperties.(parentBounds: BoundingBox, ctx: Context) -> Unit) {
-        if (orientation >= 0 && orientation < layouts.size) {
-            layouts[orientation].layoutFun = layoutFun
+        if (orientation >= 0 && orientation < props.size) {
+            props[orientation].layoutFun = layoutFun
         } else {
-            layouts.forEach { p -> p.layoutFun = layoutFun }
+            props.forEach { p -> p.layoutFun = layoutFun }
         }
     }
 
     fun translate(orientation: Int, tX: Float, tY: Float, tZ: Float) {
-        if (orientation >= 0 && orientation < layouts.size) {
-            val bb = layouts[orientation].bounds
+        if (orientation >= 0 && orientation < props.size) {
+            val bb = props[orientation].bounds
             bb.minX += tX
             bb.maxX += tX
             bb.minY += tY
@@ -49,7 +45,7 @@ open class LayoutConfig {
             bb.minZ += tZ
             bb.maxZ += tZ
         } else {
-            layouts.forEach { p ->
+            props.forEach { p ->
                 val bb = p.bounds
                 bb.minX += tX
                 bb.maxX += tX
@@ -65,12 +61,18 @@ open class LayoutConfig {
         boundsInterpolator.update(portLandMix)
     }
 
+    /**
+     * Interpolates the UI element bounds.
+     */
     open fun mixConfigs(portLandMix: Float) {
         this.portLandMix = GlMath.clamp(portLandMix, 0f, 1f)
         boundsInterpolator.update(this.portLandMix)
     }
 }
 
+/**
+ * Base layout properties determine the UI element bounds.
+ */
 class LayoutProperties {
     val bounds = BoundingBox(0.0f, 0.0f, 0.0f)
     val x: Float

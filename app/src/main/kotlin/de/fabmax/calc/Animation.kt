@@ -1,10 +1,9 @@
 package de.fabmax.calc
 
-import android.util.Log
 import de.fabmax.lightgl.util.GlMath
 
 /**
- * Helper class animating stuff
+ * Helper class for animating stuff.
  */
 open class Animation<T>(start: T, end: T, value: T, mix: (f: Float, a: T, b: T, value: T) -> T) {
 
@@ -23,6 +22,9 @@ open class Animation<T>(start: T, end: T, value: T, mix: (f: Float, a: T, b: T, 
 
     var whenDone: (() -> Unit)? = null
 
+    /**
+     * Swaps start and end values. Animation is not yet started.
+     */
     open fun reverse(): Animation<T> {
         val start = mStart
         val end = mEnd
@@ -30,6 +32,9 @@ open class Animation<T>(start: T, end: T, value: T, mix: (f: Float, a: T, b: T, 
         return this
     }
 
+    /**
+     * Sets the given start and end values. Animation is not yet started.
+     */
     open fun set(start: T, end: T): Animation<T> {
         this.mStart = start
         this.mEnd = end
@@ -37,16 +42,26 @@ open class Animation<T>(start: T, end: T, value: T, mix: (f: Float, a: T, b: T, 
         return this
     }
 
+    /**
+     * Changes the end value.
+     */
     open fun change(end: T): Animation<T> {
         this.mStart = this.mValue
         this.mEnd = end
         return this
     }
 
+    /**
+     * Starts the animation with the given duration and without any smoothing.
+     */
     fun start(duration: Float): Animation<T> {
         return start(duration, false)
     }
 
+    /**
+     * Starts the animation with the given duration. If smooth is true the animation will use
+     * a cosine smoothing, otherwise it's linear.
+     */
     fun start(duration: Float, smooth: Boolean): Animation<T> {
         this.mSmooth = smooth
         mDurationT = duration
@@ -55,6 +70,9 @@ open class Animation<T>(start: T, end: T, value: T, mix: (f: Float, a: T, b: T, 
         return this
     }
 
+    /**
+     * Updates the animated value.
+     */
     fun animate(): T {
         if (!isDone) {
             val t = System.currentTimeMillis()
@@ -84,7 +102,14 @@ open class Animation<T>(start: T, end: T, value: T, mix: (f: Float, a: T, b: T, 
 
 }
 
+/**
+ * FloatAnimation animates a scalar float value.
+ */
 class FloatAnimation : Animation<Float>(0f, 0f, 0f, { f, a, b, v -> a*(1-f) + b*f })
+
+/**
+ * Vec3fAnimation animates a 3-dimensional float vector.
+ */
 class Vec3fAnimation : Animation<Vec3f>(Vec3f(), Vec3f(), Vec3f(), { f, a, b, v ->
     v.x = a.x * (1-f) + b.x * f
     v.y = a.y * (1-f) + b.y * f
@@ -126,10 +151,12 @@ class Vec3fAnimation : Animation<Vec3f>(Vec3f(), Vec3f(), Vec3f(), { f, a, b, v 
     }
 }
 
-class Vec3f {
-    var x = 0f
-    var y = 0f
-    var z = 0f
+class Vec3f(x: Float, y: Float, z: Float) {
+    var x = x
+    var y = y
+    var z = z
+
+    constructor() : this(0f, 0f, 0f)
 
     fun set(v: Vec3f) {
         x = v.x

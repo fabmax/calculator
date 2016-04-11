@@ -3,6 +3,7 @@
 build
 gradle.properties
 local.properties
+*.apk
 
 # IntelliJ
 .idea

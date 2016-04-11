@@ -3,11 +3,8 @@ package de.fabmax.calc.ui
 import android.content.Context
 import android.util.Log
 import de.fabmax.calc.FloatAnimation
-import de.fabmax.calc.ui.SqrtEnabledEvaluator
-import de.fabmax.calc.animFont.AnimateableChar
+import de.fabmax.calc.SqrtEnabledEvaluator
 import de.fabmax.calc.animFont.AnimatedText
-import de.fabmax.lightgl.BoundingBox
-import de.fabmax.lightgl.scene.DynamicLineMesh
 import de.fabmax.lightgl.util.Color
 import de.fabmax.lightgl.util.GlFont
 import de.fabmax.lightgl.util.GlMath
@@ -16,7 +13,7 @@ import java.math.BigDecimal
 import java.math.MathContext
 
 /**
- * The panel used to display the current expression and result
+ * The panel used to display the current expression and result.
  */
 class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), context) {
 
@@ -36,14 +33,15 @@ class CalcPanel(context: Context) : Panel<CalcPanelConfig>(CalcPanelConfig(), co
 
     var fontColor: Color = Color.BLACK
     var fontConfig: GlFont.FontConfig? = null
-    private var mFont: GlFont? = null
-    private var mErrorFont: GlFont? = null
-    private val mErrorColor = Color("#EA004A")
 
     var expr: String = ""
         private set
     var result: String = ""
         private set
+
+    private var mFont: GlFont? = null
+    private var mErrorFont: GlFont? = null
+    private val mErrorColor = Color("#EA004A")
 
     private var mIoMode = false
     private var mTime = System.currentTimeMillis()

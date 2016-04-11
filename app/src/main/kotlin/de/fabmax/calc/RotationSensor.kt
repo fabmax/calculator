@@ -5,26 +5,17 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.util.Log
-
-import java.util.Locale
-
-import de.fabmax.lightgl.Camera
 
 /**
  * Acceleration sensor handler for detecting screen rotations
  */
 class RotationSensor : SensorEventListener {
 
-    private var mCam: Camera? = null
     private val mFilter = Filter()
     private var mSnappedIn = true
 
     var rotation = 0f
-
-    fun setCamera(cam: Camera) {
-        mCam = cam
-    }
+    val upDirection = Vec3f(0f, 1f, 0f)
 
     fun onResume(context: Context) {
         val sensorMgr = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -39,6 +30,9 @@ class RotationSensor : SensorEventListener {
         sensorMgr.unregisterListener(this)
     }
 
+    /**
+     * Normalized orientation: 1 = portrait, 0 = landscape
+     */
     val normalizedHV: Float
         get() {
             val r = Math.abs(rotation)
@@ -49,6 +43,11 @@ class RotationSensor : SensorEventListener {
             }
         }
 
+    /**
+     * Here happens most of the magic: Camera up direction is computed based on the phone's
+     * acceleration sensor. Also up direction snaps in when the orientation is close to a
+     * 90° angle or the phone is to horizontal.
+     */
     override fun onSensorChanged(event: SensorEvent) {
         val x = event.values[0]
         val y = event.values[1]
@@ -95,8 +94,9 @@ class RotationSensor : SensorEventListener {
         mSnappedIn = Math.abs((a % PI_2).toDouble()) < 0.0001
 
         rotation = mFilter.update(a)
-        //mCam?.setUpDirection((-Math.cos(mRotation.toDouble())).toFloat(), Math.sin(mRotation.toDouble()).toFloat(), 0f)
-        mCam?.setUpDirection((Math.sin(rotation.toDouble())).toFloat(), Math.cos(rotation.toDouble()).toFloat(), 0f)
+        upDirection.x = Math.sin(rotation.toDouble()).toFloat()
+        upDirection.y = Math.cos(rotation.toDouble()).toFloat()
+        upDirection.z = 0f
     }
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
@@ -104,8 +104,7 @@ class RotationSensor : SensorEventListener {
     }
 
     private inner class Filter {
-        var mBuf = FloatArray(16)
-        var mSorted = FloatArray(mBuf.size)
+        var mBuf = FloatArray(12)
         var mIdx = 0
 
         fun update(f: Float): Float {

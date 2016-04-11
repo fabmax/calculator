@@ -13,6 +13,11 @@ import android.view.WindowManager
 
 import de.fabmax.lightgl.util.GlMath
 
+/**
+ * ParallaxHelper uses the gyro to compute an orientation matrix which can be used to update
+ * a camera position and light direction. If no gyro is available on the device the acceleration
+ * sensor is used as fallback.
+ */
 class ParallaxHelper(context: Context) : SensorEventListener {
 
     private val mDisplay: Display
@@ -45,7 +50,6 @@ class ParallaxHelper(context: Context) : SensorEventListener {
     init {
         mSensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-        //mGyro = null;
         if (mGyro == null) {
             // use acceleration sensor as fallback
             mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)

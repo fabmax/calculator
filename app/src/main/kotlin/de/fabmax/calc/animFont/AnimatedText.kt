@@ -1,10 +1,12 @@
 package de.fabmax.calc.animFont
 
 import android.opengl.Matrix
-import android.util.Log
 import de.fabmax.lightgl.util.Color
 import de.fabmax.lightgl.util.Painter
 
+/**
+ * A string of animated characters.
+ */
 class AnimatedText(maxChars: Int) {
 
     private val start: Array<AnimateableChar>
@@ -148,7 +150,6 @@ class AnimatedText(maxChars: Int) {
 
         fun activate() {
             animationTime = 4f;
-            //animationTime = 4000f
         }
 
         fun animate(dt: Float) {

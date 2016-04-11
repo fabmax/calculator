@@ -1,5 +1,8 @@
 # Calculator
-An Android calculator app with my own OpenGL-based UI. I did this as a little
+An Android calculator app with my own OpenGL-based UI. The app is also available on
+[Google Play](https://play.google.com/store/apps/details?id=de.fabmax.calc)!
+
+I did this as a little
 experiment to see how fully animated orientation changes and true 3D layouts could
 work. However I'm not a UX guy so this might be complete rubbish :)
 
